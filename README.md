@@ -1,21 +1,42 @@
-Profile of Unseld
+What's the project?
 =================
 
-Welcome to the profile of Michael Johannes Unseld. I'm 25 years old and studying Medical Devices at the Lindgenstein University in Eltzstein. The focus of my study is the software developing for Medical Devices, image acquisition and image analysis. During my internship and bachelor thesis, I've already wrote software for the Institute for Stuffed Animals at Stuttgart
+To be honest, I'm still collecting ideas for an open source project and didn't have even found a single project to made...
 
-These are the projects I wrote software for :computer::
+About the Authors
+=================
 
-* :camera: Hyperspectral-Camera : Wrote a software, which gained the image, read out the spectral data and compressed it into a three-dimensional data cube for data analysis.
+Michael Johannes Unseld is a [currentAge] years old and a student in [Medical Devices](https://studium.hs-ulm.de/de/Seiten/Studiengang_MT.aspx)  at the [Ulm University of Applied Sciences](https://studium.hs-ulm.de/en) (THU). The focus of his studies is software developing for Medical Devices, image acquisition and image analysis. During his internship and bachelor thesis, he has already wrote software for the [Institute for Laser Technologies in Medicine and Metrology at the University of Ulm](https://www.ilm-ulm.de/en/index.html) (ILM).
 
-* :camera: Optical Coherence Tomography: Software for controlling the laser diode, spectrometer and three dimensional linear stage as probe table and also establishing a image acquisition and save system for data analysis afterwards
+These are some software he has already realised :computer::
 
-References
-----------
+* :camera: Hyperspectral-Camera: Gaining images in realtime, read out their spectral data and compressed it into a three-dimensional data cube for data analysis in MATLAB.
 
-For any further question, you can contact me or the following person
+* :camera: Optical Coherence Tomography: Control interfaces for the laser diode, spectrometer and three dimensional linear stage as probe table. Establishing four different image acquisition procedures with their variants and save system for data analysis afterwards.
 
-George Buckleburgh, assistant product owner at FantasyCompany Co. Ltd. 
+### Knowledge/ Recently used:
 
-###### Note
+1. C++
+2. Qt
+3. MATLAB
+4. CMake
 
-The statements made here are fictious and don't have to do with persons, universities or corporations which may exist. Thank you for reading and showing interest.
+#### Basic Knowledge/Got in touch with:
+1. Java
+2. C#
+3. Python
+4. OpenCV
+
+``` C++
+void WorkLifeBalance() {
+  do {
+    doSleep();
+    startWork();
+    while(work) {
+      if(coffee == CoffeeState::empty) {
+        getCoffee();
+      }
+    }
+  } while(isAlive == true);
+}
+```
