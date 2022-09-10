@@ -1,7 +1,28 @@
-What's the project?
+pySpace
 =================
 
-To be honest, I'm still collecting ideas for an open source project and didn't have even found a single project to made...
+This small game emulates the Spaceship behavior in a force free space. The player can control the space ship by applying forces via booster. By using the Kalman filter, the spaceship estimates the applied force and therefore the acceleration, current velocity, position in space and the mass of the spaceship. The player can collect power-ups, which increases the mass as load of the spaceship or the power of the booster. The spaceship can just measure the position directly through the radar connection to the earth. This and the applied booster have some noise.
+
+### To do:
+
+- [ ] UI
+  - [ ] Playground
+  - [ ] Cockpit view with estimated values such as
+    - [ ] Mass/Load
+    - [ ] Velocity
+    - [ ] Booster force
+    - [ ] Current position (x/y)
+  - [ ] Graphplot with real and estimated values for:
+    - [ ] Position (x/y)
+    - [ ] Velocity
+    - [ ] Booster power
+- [ ] Kernel
+  - [ ] Kalman filter
+  - [ ] Spaceship
+  - [ ] Power Ups
+    - [ ] Loads
+    - [ ] Booster
+
 
 About the Authors
 =================
