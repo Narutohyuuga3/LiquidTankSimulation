@@ -1,8 +1,11 @@
+from importlib import resources
 import sys
+
+from Model import Spaceship
+from View import resources
 
 from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQml import QQmlApplicationEngine
-
 
 app = QGuiApplication(sys.argv)
 

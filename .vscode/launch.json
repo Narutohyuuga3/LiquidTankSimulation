@@ -9,6 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "Source/main.py",
+            "command": "terminal: clear",
             "console": "integratedTerminal",
             "args": []
         },

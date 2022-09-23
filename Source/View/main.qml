@@ -3,15 +3,21 @@ import QtQuick.Controls 2.15
 
 ApplicationWindow {
     visible: true
-    width: 600
-    height: 500
+    width: 1580
+    height: 830
     title: "HelloApp"
     id: main
 
-    Text {
-
-        text: "Hello World"
-        font.pixelSize: 24
+    Rectangle{
+        id: background
+        height: 800
+        width: 1250
+        color: "black"
     }
-
+    Image{
+        id: spaceship
+        height: 50
+        width: 50
+        source: "qrc:/icons/spaceship.png"
+    }
 }

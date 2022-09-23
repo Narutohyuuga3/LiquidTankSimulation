@@ -23,6 +23,10 @@ This small game emulates the Spaceship behavior in a force free space. The playe
     - [ ] Loads
     - [ ] Booster
 
+### Further ideas
+
+- AI calculating route
+
 
 About the Authors
 =================

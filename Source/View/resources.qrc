@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="icons">
+        <file alias="spaceship.png">img/Spaceship/spaceship.png</file>
+        <file alias="space.png">img/Space/space.jpg</file>
+    </qresource>
+</RCC>
