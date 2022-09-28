@@ -5,6 +5,7 @@ This small game emulates the Spaceship behavior in a force free space. The playe
 
 ### To do:
 
+Goals for V 0.1 alpha
 - [ ] UI
   - [ ] Playground
   - [ ] Cockpit view with estimated values such as
@@ -17,16 +18,20 @@ This small game emulates the Spaceship behavior in a force free space. The playe
     - [ ] Velocity
     - [ ] Booster power
 - [ ] Kernel
-  - [ ] Kalman filter
   - [ ] Spaceship
+    - [ ] Kalman filter
   - [ ] Power Ups
     - [ ] Loads
     - [ ] Booster
 
 ### Further ideas
 
-- AI calculating route
+- AI calculating route and auto pilot
+- expand view to a 3d box (maybe Qt 3D or OpenCV/GL)
+- implement solar system and gravitational forces
+- add interstellar travelling (with fast forward)
 
+Sidenote: Imagine how awesome it would be, having a own created     physic model of solar system and galaxy. Visualize it! Plus, you learning about interstellar physics.
 
 About the Authors
 =================
@@ -61,6 +66,7 @@ These are some software he has already realized :computer::
 * Using Object Identifier/Face Recognition of OpenCV
 * Linux programming
 * Building small robots based on a Raspberry Pi
+* Expanding knowledge in astronomie
 
 ``` C++
 void WorkLifeBalance() {
