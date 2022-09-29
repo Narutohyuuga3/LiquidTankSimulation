@@ -15,14 +15,18 @@ def on_keyLeft():
 
 if __name__ == '__main__':
     app = QGuiApplication(sys.argv)
+
     engine = QQmlApplicationEngine()
     engine.quit.connect(app.quit)
     engine.load('Source/View/main.qml')
 
     spaceshipPosX = 200
     spaceshipPosY = 200
-    gamefield = Gamefield
+    gamefield = Gamefield()
     engine.rootObjects()[0].setProperty('gamefield', gamefield)
+    root = engine.rootObjects()[0]
+    root.keyLeft.connect(gamefield.on_keyLeft)
+    gamefield.updateSpaceshipPos.connect(root.onUpdateSpaceshipPos)
 
     if not engine.rootObjects():
         sys.exit(-1)

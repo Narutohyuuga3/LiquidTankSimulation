@@ -10,25 +10,19 @@ ApplicationWindow {
 
     property int spaceshipPosX: 500
     property int spaceshipPosY: 500
-    property QtObject gamefield
-
-    Connections {
-        target: gamefield
-
-        function onUpdated(x, y) {
-            spaceshipPosX = x
-            spaceshipPosY = y
-        }
+    signal keyLeft(int val)
+    
+    function onUpdateSpaceshipPos(x, y) {
+        spaceshipPosX = x
+        spaceshipPosY = y
+        console.log("Main.qml onUpdateSpaceshipPos: x=", x, "y=", y)
     }
 
-    Item {
+    Rectangle {
         anchors.fill: parent
         focus: true
-        Keys.onLeftPressed: (event)=>{
-            if (event.key == Qt.Key_Left) {
-                gamefield.on_keyLeft()
-            }
-        }
+
+        Keys.onLeftPressed: keyLeft(10)
     }
 
     Rectangle {

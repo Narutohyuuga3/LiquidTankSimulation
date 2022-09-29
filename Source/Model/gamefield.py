@@ -15,28 +15,29 @@ transmit spaceship "measured" data from earthstation
     for easiness, it is estimated, that the transmission is perfectly timed every 1s
 """
 
-from PyQt6.QtCore import QObject, pyqtSignal
-@QObject
-class Gamefield(QObject):
-    updateSpaceshipPosX = pyqtSignal(int, arguments=['spaceshipPosX'])
-    updateSpaceshipPosY = pyqtSignal(int, arguments=['spaceshipPosY'])
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtProperty
 
+
+class Gamefield(QObject):
+
+    updateSpaceshipPos = pyqtSignal(int, int)
+    
     def __init__(self):
-        gamefieldSizeX = 1250
-        gamefieldSizeY = 800
-        shipsize = 50
-        shipPosX = gamefieldSizeX/2
-        shipPosY = gamefieldSizeY/2
+        super().__init__()
+
+        self.gamefieldSizeX = 1250
+        self.gamefieldSizeY = 800
+        self.shipsize = 50
+        self.spaceshipPosX = self.gamefieldSizeX/2
+        self.spaceshipPosY = self.gamefieldSizeY/2
 
     def transmission(self):
         self.updateSpaceshipPosX.emit()
 
-    @Slot()
-    def on_keyLeft():
-        print("Key left pressed!")
-
-
-
+    def on_keyLeft(self, val):
+        print(f'Gamefield on_keyLeft: called {val}' )
+        self.spaceshipPosY-= 40
+        self.updateSpaceshipPos.emit(self.spaceshipPosX ,self.spaceshipPosY)
 
 if __name__ == '__main__':
     pass
