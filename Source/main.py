@@ -1,14 +1,10 @@
-from importlib import resources
 import sys
 
-from Model import Spaceship
 from Model.gamefield import Gamefield
 from View import resources
 
 from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtQml import QQmlApplicationEngine
-from PyQt6.QtQuick import QQuickView
-from PyQt6.QtCore import QUrl, QObject
 
 def on_keyLeft():
     print("Key left pressed!")
@@ -25,7 +21,8 @@ if __name__ == '__main__':
     gamefield = Gamefield()
     engine.rootObjects()[0].setProperty('gamefield', gamefield)
     root = engine.rootObjects()[0]
-    root.keyLeft.connect(gamefield.on_keyLeft)
+    root.startKeyPressed.connect(gamefield.on_keyPressed)
+    root.stopKeyPressed.connect(gamefield.on_keyReleased)
     gamefield.updateSpaceshipPos.connect(root.onUpdateSpaceshipPos)
 
     if not engine.rootObjects():
