@@ -29,6 +29,13 @@ transmit spaceship "measured" data from earthstation
     - posX
     - posY
     for easiness, it is estimated, that the transmission is perfectly timed every 1s
+
+    kalman filter output
+    - estimatet position x/y 
+    - sigma x/y
+    - probability cloud
+
+    
 """
 
 from PyQt6.QtCore import QObject, pyqtSignal
@@ -48,7 +55,7 @@ class Gamefield(QObject):
 
     def __init__(self):
         super().__init__()
-        self._spaceship = spaceship(np.array([[200], [500], [0]]), 1500*1000, np.array([[10000000, 9500000],[5500000, 4500000], [0, 0]]), np.array([[0], [0], [0]]))
+        self._spaceship = spaceship(np.array([[200], [500], [0]]), 1500*1000, np.array([[100000000, 95000000],[55000000, 45000000], [0, 0]]), np.array([[0], [0], [0]]))
         self._keyPressed = False
         self._dims = ['+', '+', '+']
         self._keyPressed=[False, False, False]

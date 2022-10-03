@@ -1,14 +1,16 @@
 pySpace
 =================
 
-This small game emulates the Spaceship behavior in a force free space. The player can control the space ship by applying forces via booster. By using the Kalman filter, the spaceship estimates the applied force and therefore the acceleration, current velocity, position in space and the mass of the spaceship. The player can collect power-ups, which increases the mass as load of the spaceship or the power of the booster. The spaceship can just measure the position directly through the radar connection to the earth. This and the applied booster have some noise.
+This small game emulates the Spaceship behavior in a force free space. The player can control the space ship by applying forces via booster. By using the Kalman filter, the spaceship estimates the applied force and therefore the acceleration, current velocity, position in space and the mass of the spaceship. It should predict the trajectory of the spaceship in the space. The player can collect power-ups, which increases the mass as load of the spaceship or the power of the booster. The spaceship can just measure the position directly through the radar connection to the earth. This and the applied booster have some noise.
 
 ### To do:
 
-Goals for V 0.1 alpha
+Goals for V1:
 - [ ] UI
   - [ ] Playground
-  - [ ] Cockpit view with estimated values such as
+    - [x] Ship
+    - [ ] Booster
+  - [ ] "Cockpit"-Computer view with estimated values such as
     - [ ] Mass/Load
     - [ ] Velocity
     - [ ] Booster force
@@ -19,19 +21,56 @@ Goals for V 0.1 alpha
     - [ ] Booster power
 - [ ] Kernel
   - [ ] Spaceship
-    - [ ] Kalman filter
+    - [x] Ship
+    - [ ] Kalman filter/Boardcomputer
+      - [ ] pos XY
+      - [ ] further expansion
   - [ ] Power Ups
     - [ ] Loads
     - [ ] Booster
 
+Goals for V2:
+Offer 3d Space"simulator" as own game type
+- [ ] Menu
+  - [ ] Offer V1
+  - [ ] Add V2
+- [ ] UI
+  - [ ] Add 3d Game Engine (Panda3d?)
+  - [ ] Playground
+    -[ ] Add Planets
+    -[ ]Astroids
+  - [ ] Cockpit view with boardcomputer displaying estimated values such as
+    - [ ] Mass/Load
+    - [ ] Velocity
+    - [ ] Booster force
+    - [ ] Current position (x/y/z)
+    - [ ] Orientation
+  - [ ] Moving Graphplot to submenu
+- [ ] Kernel
+  - [ ] Spaceship
+    - [ ] different ship types
+    - [ ] Warp engine
+  - [ ] Galaxies
+  - [ ] Planets
+    - [ ] Movement
+    - [ ] Rotation
+    - [ ] Gravity
+
+Goals for V3:
+
+Add as further mode "Orrery" where you can watch movement of Plantes just like in a **orrery** with date
 ### Further ideas
 
 - AI calculating route and auto pilot
-- expand view to a 3d box (maybe Qt 3D or OpenCV/GL)
-- implement solar system and gravitational forces
-- add interstellar travelling (with fast forward)
+- expand view to a 3d box (maybe Qt 3D or OpenCV/GL) (planned for V2)
+- implement solar system and gravitational forces (planned for V2)
+- add interstellar travelling (with fast forward) (planned for V2)
 
 Sidenote: Imagine how awesome it would be, having a own created     physic model of solar system and galaxy. Visualize it! Plus, you learning about interstellar physics.
+
+### License
+
+This project uses the GPLv3 License
 
 About the Authors
 =================
@@ -62,11 +101,11 @@ These are some software he has already realized :computer::
 
 * CUDA/GPU-Programming
 * Learning Chess
-* Study Maxwell's Equations
+* Study Maxwell's Equations (<- Maybe do a numerical solver to it as project)
 * Using Object Identifier/Face Recognition of OpenCV
 * Linux programming
 * Building small robots based on a Raspberry Pi
-* Expanding knowledge in astronomie
+* Expanding knowledge in astronomy
 
 ``` C++
 void WorkLifeBalance() {
