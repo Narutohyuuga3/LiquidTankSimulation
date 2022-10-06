@@ -24,6 +24,8 @@ if __name__ == '__main__':
     root.startKeyPressed.connect(gamefield.on_keyPressed)
     root.stopKeyPressed.connect(gamefield.on_keyReleased)
     gamefield.updateSpaceshipPos.connect(root.onUpdateSpaceshipPos)
+    gamefield.updateSpaceshipEstimation.connect(root.onUpdateSpaceshipEstimation)
+    gamefield.updateSpaceshipMeasurepoint.connect(root.onUpdateSpaceshipMeasurepoint)
 
     if not engine.rootObjects():
         sys.exit(-1)

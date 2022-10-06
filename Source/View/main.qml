@@ -5,11 +5,18 @@ ApplicationWindow {
     visible: true
     width: 1580
     height: 830
-    title: "HelloApp"
+    title: "pySpace"
     id: main
 
     property int spaceshipPosX: 500
     property int spaceshipPosY: 500
+
+    property int spaceshipEstimationX: 500
+    property int spaceshipEstimationY: 500
+
+    property int spaceshipMeasurepointX: 500
+    property int spaceshipMeasurepointY: 500
+
     signal keyLeft(int val)
     signal startKeyPressed(string key)
     signal stopKeyPressed(string key)
@@ -19,6 +26,17 @@ ApplicationWindow {
         spaceshipPosY = y
         //console.log("Main.qml onUpdateSpaceshipPos: x=", x, "y=", y)
     }
+    function onUpdateSpaceshipEstimation(x, y, z) {
+        spaceshipEstimationX = x
+        spaceshipEstimationY = y
+        //console.log("Main.qml onUpdateSpaceshipEstimation: x=", x, "y=", y)
+    }
+    function onUpdateSpaceshipMeasurepoint(x, y, z) {
+        spaceshipMeasurepointX = x
+        spaceshipMeasurepointY = y
+        //console.log("Main.qml onUpdateSpaceshipMeasurepoint: x=", x, "y=", y)
+    }
+
 
     Rectangle {
         anchors.fill: parent
@@ -82,11 +100,38 @@ ApplicationWindow {
     }
     Image {
         id: spaceship
-        height: 50
-        width: 50
-        x: spaceshipPosX
-        y: spaceshipPosY
+        height: 40
+        width: 40
+        x: spaceshipPosX - width/2
+        y: spaceshipPosY - height/2
         source: "qrc:/icons/spaceship.png"
         fillMode: Image.PreserveAspectFit
+    }
+    Rectangle {
+        id: spaceshipRealPosition
+        height: 10
+        width: 10
+        radius: width*0.5
+        color: "green"
+        x: spaceshipPosX - width/2
+        y: spaceshipPosY - height/2
+    }
+    Rectangle {
+        id: spaceshipEstimation
+        height: 10
+        width: 10
+        radius: width*0.5
+        color: "red"
+        x: spaceshipEstimationX - width/2
+        y: spaceshipEstimationY - height/2
+    }
+    Rectangle {
+        id: spaceshipMeasurement
+        height: 10
+        width: 10
+        radius: width*0.5
+        color: "blue"
+        x: spaceshipMeasurepointX - width/2
+        y: spaceshipMeasurepointY - height/2
     }
 }

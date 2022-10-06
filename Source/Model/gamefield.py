@@ -31,11 +31,11 @@ transmit spaceship "measured" data from earthstation
     for easiness, it is estimated, that the transmission is perfectly timed every 1s
 
     kalman filter output
-    - estimatet position x/y 
-    - sigma x/y
+    - estimated position x/y    ]
+    - sigma x/y                 ]} depict it as cloud/elipse on gamefield
     - probability cloud
 
-    
+
 """
 
 from PyQt6.QtCore import QObject, pyqtSignal
@@ -47,15 +47,12 @@ from Model.Spaceship.spaceship import spaceship
 class Gamefield(QObject):
 
     updateSpaceshipPos = pyqtSignal(int, int, int)
-    _spaceship = None
-    _threadSurface = None
-    _threadCalculations = None
-    _keyPressed = None
-    _dims = None
-
+    updateSpaceshipEstimation = pyqtSignal(int, int, int)
+    updateSpaceshipMeasurepoint = pyqtSignal(int, int, int)
+    
     def __init__(self):
         super().__init__()
-        self._spaceship = spaceship(np.array([[200], [500], [0]]), 1500*1000, np.array([[100000000, 95000000],[55000000, 45000000], [0, 0]]), np.array([[0], [0], [0]]))
+        self._spaceship = spaceship(np.array([[200], [500], [0]]), 1500*1000, np.array([[100000000, 95000000],[55000000, 45000000], [0, 0]]), np.array([[0], [0], [0]]), 0.1)
         self._keyPressed = False
         self._dims = ['+', '+', '+']
         self._keyPressed=[False, False, False]
@@ -65,7 +62,6 @@ class Gamefield(QObject):
 
         self._threadCalculations = Thread(target= self.threadUpdateCalculations, daemon=True)
         self._threadCalculations.start()
-
 
     def threadUpdateSurface(self):
         # Updates surface after 1/60fps ~ 16ms
@@ -78,6 +74,12 @@ class Gamefield(QObject):
             position = self._spaceship.getPosition()
             self.updateSpaceshipPos.emit(position[0, 0], position[1, 0], position[2, 0])
             
+            position = self._spaceship.getEstimation()
+            self.updateSpaceshipEstimation.emit(position[0, 0], position[1, 0], position[2, 0])
+            
+            position = self._spaceship.getMeasurepoint()
+            self.updateSpaceshipMeasurepoint.emit(position[0, 0], position[1, 0], position[2, 0])
+
             deltaT = time.time() - tic
             if  deltaT < 0.016: # Proof if elapsed time larger than 16ms
                 time.sleep(0.016-deltaT) # sleep the missing time
@@ -87,6 +89,7 @@ class Gamefield(QObject):
         tic = time.time()
         timeVector = np.array([[0.0],[0.0],[0.0]])
         deltaT = 0
+        ticTransmission = time.time()
         while True:
             if deltaT == 0:
                 time.sleep(0.001)
@@ -104,6 +107,12 @@ class Gamefield(QObject):
 
             self._spaceship.calculatePosition(deltaT)
             tic = deltaT + tic
+
+            tocTransmission = time.time()
+            if tocTransmission - ticTransmission >= 1:
+                #print("threadUpdateCalculations: Send transmission!")
+                self._spaceship.sendTransmission(1)
+                ticTransmission = tocTransmission
 
     def on_keyPressed(self, key):
         #print(f'Gamefield on_keyPressed: called {key}' )
