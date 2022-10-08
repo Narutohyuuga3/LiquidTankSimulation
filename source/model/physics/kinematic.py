@@ -15,16 +15,16 @@ class kinematic():
     """
 
 
-    def velocity2position(velocity, time, position=0):
+    def velocity2position(velocity: float, time: float, position: float = 0):
         #print('Kinematic velocity2position: x=%f.1, y=%f.1, z=%f.1' %(position[0,0],position[1,0],position[2,0]))
         return velocity * time + position
 
-    def acceleration2velocity(acceleration, time, velocity=0):
+    def acceleration2velocity(acceleration: float, time: float, velocity: float = 0):
         #print('Kinematic acceleration2velocity: x=%f.1, y=%f.1, z=%f.1' %(velocity[0,0], velocity[1,0], velocity[2,0]))
         return acceleration * time + velocity
 
-    def acceleration2position( acceleration, time, velocity=0, position=0):
-        return kinematic.acceleration2velocity(acceleration, time, velocity) * time + position
+    def acceleration2position(acceleration: float, time: float, velocity: float = 0, position: float = 0):
+        return 0.5 * acceleration * time**2 + velocity * time + position
     
-    def positions2velocity(previousPosition, currentPosition, deltaTime):
+    def positions2velocity(previousPosition: float, currentPosition: float, deltaTime: float):
         return (currentPosition - previousPosition)/deltaTime
