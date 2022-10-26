@@ -104,7 +104,9 @@ ApplicationWindow {
         width: 40
         x: spaceshipPosX - width/2
         y: spaceshipPosY - height/2
-        source: "qrc:/icons/spaceship.png"
+        //source: "qrc:/icons/spaceship.png"
+        //source: "spaceship:spaceship.png"
+        source: "icon:Spaceship/spaceship.png"
         fillMode: Image.PreserveAspectFit
     }
     Rectangle {

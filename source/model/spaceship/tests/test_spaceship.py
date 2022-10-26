@@ -183,7 +183,7 @@ class TestBoardcomputer(unittest.TestCase):
         realX = 200
         realY = 500
         realVx = 0.1
-        realVy = 1
+        realVy = 0.8
         realAx = 0
         realAy = 0
         messVarX = 12
@@ -200,8 +200,8 @@ class TestBoardcomputer(unittest.TestCase):
         vx_var = []
         vy_var = []
 
-        steps = 500
-        updateAt = 100
+        steps = 600
+        updateAt = 200
         t = 1
 
         for i in range(steps):
