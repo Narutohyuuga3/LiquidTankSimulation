@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 ApplicationWindow {
     visible: true
     width: 1580
+    //width: 800
     height: 830
     title: "pySpace"
     id: main
@@ -11,11 +12,13 @@ ApplicationWindow {
     property int spaceshipPosX: 500
     property int spaceshipPosY: 500
 
-    property int spaceshipEstimationX: 500
-    property int spaceshipEstimationY: 500
+    property var spaceshipMeasurepointX: 500
+    property var spaceshipMeasurepointY: 500
 
-    property int spaceshipMeasurepointX: 500
-    property int spaceshipMeasurepointY: 500
+    property var spaceshipEstimationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
+    property var spaceshipEstimationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
+
+    property int numberPredictors: 10
 
     signal keyLeft(int val)
     signal startKeyPressed(string key)
@@ -26,11 +29,18 @@ ApplicationWindow {
         spaceshipPosY = y
         //console.log("Main.qml onUpdateSpaceshipPos: x=", x, "y=", y)
     }
-    function onUpdateSpaceshipEstimation(x, y, z) {
-        spaceshipEstimationX = x
-        spaceshipEstimationY = y
-        //console.log("Main.qml onUpdateSpaceshipEstimation: x=", x, "y=", y)
+
+    function onUpdateSpaceshipEstimation(pos) {
+        spaceshipEstimationX = pos[0]
+        spaceshipEstimationY = pos[1]
+        //console.log("Main.qml onUpdateSpaceshipEstimation: x=", spaceshipEstimationX, "y=", spaceshipEstimationY)
+        for (var i in main.spaceshipEstimationX){
+            //console.log(i)
+            id_predictorRepeater.itemAt(i).x = spaceshipEstimationX[i] - id_predictorRepeater.itemAt(i).width * 0.5
+            id_predictorRepeater.itemAt(i).y = spaceshipEstimationY[i] - id_predictorRepeater.itemAt(i).height * 0.5
+        }
     }
+    
     function onUpdateSpaceshipMeasurepoint(x, y, z) {
         spaceshipMeasurepointX = x
         spaceshipMeasurepointY = y
@@ -41,6 +51,7 @@ ApplicationWindow {
     Rectangle {
         anchors.fill: parent
         focus: true
+
 
         Keys.onPressed: (event)=>{
             switch (event.key){
@@ -93,47 +104,56 @@ ApplicationWindow {
     }
 
     Rectangle {
-        id: background
+        id: id_background
         height: 800
         width: 1250
         color: "black"
     }
+    
+    // Here everything to draw on Display
+    Repeater{
+        id: id_predictorRepeater
+        model: 10
+        Rectangle {
+            height: 10
+            width: 10
+            radius: width*0.5
+            color: "red"
+            x: 25 * (index + 1) + main.spaceshipPosX
+            y: 25 * (index + 1) + main.spaceshipPosY
+        }
+    }
+
     Image {
-        id: spaceship
+        id: id_spaceship
         height: 40
         width: 40
-        x: spaceshipPosX - width/2
-        y: spaceshipPosY - height/2
+        x: main.spaceshipPosX - width/2
+        y: main.spaceshipPosY - height/2
         //source: "qrc:/icons/spaceship.png"
         //source: "spaceship:spaceship.png"
         source: "icon:Spaceship/spaceship.png"
         fillMode: Image.PreserveAspectFit
     }
+
+
     Rectangle {
-        id: spaceshipRealPosition
+        id: id_spaceshipRealPosition
         height: 10
         width: 10
         radius: width*0.5
         color: "green"
-        x: spaceshipPosX - width/2
-        y: spaceshipPosY - height/2
+        x: main.spaceshipPosX - width/2
+        y: main.spaceshipPosY - height/2
     }
+
     Rectangle {
-        id: spaceshipEstimation
-        height: 10
-        width: 10
-        radius: width*0.5
-        color: "red"
-        x: spaceshipEstimationX - width/2
-        y: spaceshipEstimationY - height/2
-    }
-    Rectangle {
-        id: spaceshipMeasurement
+        id: id_spaceshipMeasurement
         height: 10
         width: 10
         radius: width*0.5
         color: "blue"
-        x: spaceshipMeasurepointX - width/2
-        y: spaceshipMeasurepointY - height/2
+        x: main.spaceshipMeasurepointX - width/2
+        y: main.spaceshipMeasurepointY - height/2
     }
 }

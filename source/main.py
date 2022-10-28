@@ -43,8 +43,8 @@ if __name__ == '__main__':
     root.startKeyPressed.connect(field.on_keyPressed)
     root.stopKeyPressed.connect(field.on_keyReleased)
     field.updateSpaceshipPos.connect(root.onUpdateSpaceshipPos)
-    field.updateSpaceshipEstimation.connect(root.onUpdateSpaceshipEstimation)
     field.updateSpaceshipMeasurepoint.connect(root.onUpdateSpaceshipMeasurepoint)
+    field.updateSpaceshipEstimation.connect(root.onUpdateSpaceshipEstimation)
     app.lastWindowClosed.connect(field.__del__)
 
     timer = QTimer()

@@ -38,6 +38,7 @@ transmit spaceship "measured" data from earthstation
 
 """
 
+from turtle import update
 from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 from threading import Thread
 import time
@@ -47,28 +48,28 @@ from model.spaceship.spaceship import spaceship
 class gamefield(QObject):
 
     updateSpaceshipPos = pyqtSignal(int, int, int)
-    updateSpaceshipEstimation = pyqtSignal(int, int, int)
     updateSpaceshipMeasurepoint = pyqtSignal(int, int, int)
+    updateSpaceshipEstimation = pyqtSignal(list)
     
     def __init__(self):
         super().__init__()
-        self._spaceship = spaceship(np.array([[200], [500], [0]]), 1500*1000, np.array([[100000000, 95000000],[55000000, 45000000], [0, 0]]), np.array([[0], [0], [0]]), 0.1)
-        self._keyPressed = False
-        self._dims = ['+', '+', '+']
-        self._keyPressed=[False, False, False]
-        self._exit = False
+        self.__spaceship = spaceship([200, 500, 0], 1500*1000, [[100000000, 95000000],[55000000, 45000000], [0, 0]], [0, 0, 0], nPredict=10, deltaT=0.05)
+        self.__keyPressed = False
+        self.__dims = ['+', '+', '+']
+        self.__keyPressed=[False, False, False]
+        self.__exit = False
         
-        self._threadSurface = Thread(target= self.threadUpdateSurface)
-        self._threadSurface.start()
+        self.__threadSurface = Thread(target= self.threadUpdateSurface)
+        self.__threadSurface.start()
 
-        self._threadCalculations = Thread(target= self.threadUpdateCalculations)
-        self._threadCalculations.start()
+        self.__threadCalculations = Thread(target= self.threadUpdateCalculations)
+        self.__threadCalculations.start()
 
     def __del__(self):
         #print("Gamefield destroyer: called!")
-        self._exit = True
-        self._threadCalculations.join()
-        self._threadSurface.join()
+        self.__exit = True
+        self.__threadCalculations.join()
+        self.__threadSurface.join()
         #print("Gamefield __del__: thread waiting done!")
 
     def threadUpdateSurface(self):
@@ -76,74 +77,109 @@ class gamefield(QObject):
         # - emits signals for surface
         # - sleeps required time
         #print("Gamefield threadUpdateSurface: Ping")
-        while self._exit == False:
+        while self.__exit == False:
             tic = time.time()
             # Signals emitten, Oberfläche aktualisieren
-            position = self._spaceship.getPosition()
+            position = self.__spaceship.getPosition()
             self.updateSpaceshipPos.emit(position[0, 0], position[1, 0], position[2, 0])
+            position = self.__spaceship.getMeasurePoint()
+            self.updateSpaceshipMeasurepoint.emit(position[0, 0], position[1, 0], position[2, 0])
             
+            listvar = self.__spaceship.getPrediction()
+            self.updateSpaceshipEstimation.emit(listvar)
+
             deltaT = time.time() - tic
             if  deltaT < 0.016: # Proof if elapsed time larger than 16ms
-                time.sleep(0.016-deltaT) # sleep the missing time
+                time.sleep(0.016 - deltaT) # sleep the missing time
             #redo everything
     
     def  threadUpdateCalculations(self):
         tic = time.time()
         timeVector = np.array([[0.0],[0.0],[0.0]])
         deltaT = 0
-        while self._exit == False:
+        deltaTUpdate = 0
+        deltaTPredict = 0
+        predictionTimespan = self.__spaceship.getStepT()*self.__spaceship.getNPrediction()
+        updateTime = 0.5 # s
+        ticUpdate = tic - updateTime
+        ticPredict = tic + predictionTimespan
+        while self.__exit == False:
             if deltaT == 0:
                 time.sleep(0.001)
 
             deltaT = time.time() - tic
 
-            if True in self._keyPressed:
-                for idx, elem in enumerate(self._keyPressed):
+            if True in self.__keyPressed:
+                for idx, elem in enumerate(self.__keyPressed):
                     if elem == True:
                         timeVector[idx, 0] = deltaT
                     else:
                         timeVector[idx, 0] = 0.0
+                self.__spaceship.calcVelocity(timeVector, self.__dims)
 
-                self._spaceship.calcVelocity(timeVector, self._dims)
-
-            self._spaceship.calculatePosition(deltaT)
+            self.__spaceship.calculatePosition(deltaT)
             tic = deltaT + tic
+
+            # check and prediction of boardcomputer
+            # nPredict * stepT = Timespan
+            # check time to send update
+            deltaTUpdate = time.time() - ticUpdate
+            deltaTPredict = time.time() - ticPredict
+            dims = self.matchDimsToInput()
+            if deltaTUpdate >= updateTime: # send update to spaceship. Reset timers
+                ticUpdate = ticUpdate + deltaTUpdate
+                ticPredict = ticUpdate + predictionTimespan
+                self.__spaceship.sendUpdate(dims) 
+            
+            elif deltaTPredict >= self.__spaceship.getStepT(): # calculate next prediction, erase first prediction
+                ticPredict = ticPredict + deltaTPredict # reset timer
+                self.__spaceship.sendCompute(dims) 
+
+
+    def matchDimsToInput(self):
+        dims = [0, 0, 0]
+        for idx, elem in enumerate(self.__keyPressed):
+            if elem == True:
+                dims[idx] = self.__dims[idx]
+            else:
+                dims[idx] = 0
+        return dims
 
     def on_keyPressed(self, key):
         #print(f'Gamefield on_keyPressed: called {key}' )
         if key == 'w':
-            self._keyPressed[1] = True
-            self._dims[1] = '-'
+            self.__keyPressed[1] = True
+            self.__dims[1] = '-'
         elif key == 's':
-            self._keyPressed[1] = True
-            self._dims[1] = '+'
+            self.__keyPressed[1] = True
+            self.__dims[1] = '+'
         elif key == 'a':
-            self._keyPressed[0] = True
-            self._dims[0] = '-'
+            self.__keyPressed[0] = True
+            self.__dims[0] = '-'
         elif key == 'd':
-            self._keyPressed[0] = True
-            self._dims[0] = '+'
+            self.__keyPressed[0] = True
+            self.__dims[0] = '+'
         elif key == 'q':
-            self._keyPressed[2] = True
-            self._dims[2] = '+'
+            self.__keyPressed[2] = True
+            self.__dims[2] = '+'
         else:
-            self._keyPressed[2] = True
-            self._dims[2] = '-'
+            self.__keyPressed[2] = True
+            self.__dims[2] = '-'
 
     def on_keyReleased(self, key):
         #print(f'Gamefield on_keyReleased: called {key}' )
         if key == 'w':
-            self._keyPressed[1] = False
+            self.__keyPressed[1] = False
         elif key == 's':
-            self._keyPressed[1] = False
+            self.__keyPressed[1] = False
         elif key == 'a':
-            self._keyPressed[0] = False
+            self.__keyPressed[0] = False
         elif key == 'd':
-            self._keyPressed[0] = False
+            self.__keyPressed[0] = False
         elif key == 'q':
-            self._keyPressed[2] = False
+            self.__keyPressed[2] = False
         else:
-            self._keyPressed[2] = False
+            self.__keyPressed[2] = False
 
 if __name__ == '__main__':
     pass
