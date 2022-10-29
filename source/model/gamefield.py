@@ -53,7 +53,7 @@ class gamefield(QObject):
     
     def __init__(self):
         super().__init__()
-        self.__spaceship = spaceship([200, 500, 0], 1500*1000, [[100000000, 95000000],[55000000, 45000000], [0, 0]], [0, 0, 0], nPredict=10, deltaT=0.05)
+        self.__spaceship = spaceship([200, 500, 0], 1500*1000, [[100000000, 95000000],[55000000, 45000000], [0, 0]], [0, 0, 0], nPredict=10, deltaT=0.1)
         self.__keyPressed = False
         self.__dims = ['+', '+', '+']
         self.__keyPressed=[False, False, False]
@@ -99,8 +99,8 @@ class gamefield(QObject):
         deltaT = 0
         deltaTUpdate = 0
         deltaTPredict = 0
-        predictionTimespan = self.__spaceship.getStepT()*self.__spaceship.getNPrediction()
-        updateTime = 0.5 # s
+        predictionTimespan = self.__spaceship.getStepT() * 0.8
+        updateTime = 3 # s
         ticUpdate = tic - updateTime
         ticPredict = tic + predictionTimespan
         while self.__exit == False:

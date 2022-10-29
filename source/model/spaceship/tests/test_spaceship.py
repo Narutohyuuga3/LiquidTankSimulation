@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from source.model.spaceship.spaceship import boardcomputer
+from source.model.spaceship.spaceship import boardcomputer, spaceship
 from source.model.physics.kinematic import kinematic
 
 from matplotlib import pyplot as plt
@@ -174,89 +174,74 @@ class TestBoardcomputer(unittest.TestCase):
         print(det_after)
 
     def test_canBoth(self):
-        xVect=np.array([[200],[500],[0]])
-        vVect=np.array([[1],[0.3],[0]])
-        aVect=np.array([[0],[0],[0]])
         a_var = 1.2
-        bc = boardcomputer(xVect, vVect, aVect, aVect, a_var)
-        
-        realX = 200
-        realY = 500
-        realVx = 0.1
-        realVy = 0.8
+        steps = 1000
+        realX = 0
+        realY = 0
+        realVx = 5
+        realVy = 5
         realAx = 0
-        realAy = 0
-        messVarX = 12
-        messVarY = 10.3
+        realAy = -1
+        m_deltaT = 0.01
+        m_spaceship = spaceship(position = [realX, realY, 0], mass = 100, velocity= [realVx, realVy, 0], nPredict= steps, deltaT=m_deltaT)
+        
+        messVarX = 0.23
+        messVarY = 0.23
 
-        pos = []
-        vel = []
+        posX = []
+        posY = []
+        velX = []
+        velY = []
+        aX = []
+        aY = []
         realXlist = []
         realYlist = []
         realVxlist = []
         realVylist = []
-        x_var = []
-        y_var = []
-        vx_var = []
-        vy_var = []
+        realAx = []
+        realAy = []
 
-        steps = 600
-        updateAt = 200
-        t = 1
-
-        for i in range(steps):
-            bc.predict(t)
-            realX = kinematic.acceleration2position(realAx, t, realVx, realX)
-            realY = kinematic.acceleration2position(realAy, t, realVy, realY)
-            realVx = kinematic.acceleration2velocity(realAx, t, realVx)
-            realVy = kinematic.acceleration2velocity(realAy, t, realVy)
-
-            realXlist.append(realX)
-            realYlist.append(realY)
-            realVxlist.append(realVx)
-            realVylist.append(realVy)
-
-            if i != 0 and i%updateAt == 0:
-                messX = np.random.randn() * np.sqrt(messVarX) + realX
-                messY = np.random.randn() * np.sqrt(messVarY) + realY
-                bc.update((messX, messY, 0),(messVarX, messVarY, 0))
-
-            pos.append(bc.pos)
-            vel.append(bc.vel)
-            x_var.append(np.sqrt(bc.P[0, 0]))
-            y_var.append(np.sqrt(bc.P[1, 1]))
-            vx_var.append(np.sqrt(bc.P[3, 3]))
-            vy_var.append(np.sqrt(bc.P[4, 4]))
+        m_spaceship.sendUpdate(['0', '-', '0'])
+        pos = m_spaceship.getPrediction()
+        posX = pos[0]
+        posY = pos[1]
+        velX = pos[3]
+        velY = pos[4]
+        aX = pos[6]
+        aY = pos[7]
 
         plt.ion()
         plt.figure()
-        plt.subplot(2, 2, 1)
+        plt.subplot(3, 3, 1)
         plt.title('Position X')
-        plt.plot([x[0].item() for x in pos], 'r')
-        plt.plot(realXlist, 'b--')
-        plt.plot([x[0].item() + x_var[idx] for idx, x in enumerate(pos)], 'r--')
-        plt.plot([x[0].item() - x_var[idx] for idx, x in enumerate(pos)], 'r--')
+        plt.plot(posX, 'r')
 
-        plt.subplot(2, 2, 2)
+        plt.subplot(3, 3, 2)
         plt.title('Velocity X')
-        plt.plot([vx[0].item() for vx in vel], 'r')
-        plt.plot(realVxlist, 'b--')
-        plt.plot([vx[0].item() + vx_var[idx] for idx, vx in enumerate(vel)], 'r--')
-        plt.plot([vx[0].item() - vx_var[idx] for idx, vx in enumerate(vel)], 'r--')
-        
-        plt.subplot(2, 2, 3)
-        plt.title('Position Y')
-        plt.plot([y[1].item() for y in pos], 'b')
-        plt.plot(realYlist, 'r--')
-        plt.plot([y[1].item() + x_var[idx] for idx, y in enumerate(pos)], 'b--')
-        plt.plot([y[1].item() - x_var[idx] for idx, y in enumerate(pos)], 'b--')
+        plt.plot(velX, 'r')
 
-        plt.subplot(2, 2, 4)
+        plt.subplot(3, 3, 3)
+        plt.title('Acceleration X')
+        plt.plot(aX, 'r')
+
+
+        plt.subplot(3, 3, 4)
+        plt.title('Position Y')
+        plt.plot(posY, 'b')
+
+        plt.subplot(3, 3, 5)
         plt.title('Velocity Y')
-        plt.plot([vy[1].item() for vy in vel], 'b')
-        plt.plot(realVylist, 'r--')
-        plt.plot([vy[1].item() + vy_var[idx] for idx, vy in enumerate(vel)], 'b--')
-        plt.plot([vy[1].item() - vy_var[idx] for idx, vy in enumerate(vel)], 'b--')
+        plt.plot(velY, 'b')
+
+        plt.subplot(3, 3, 6)
+        plt.title('Acceleration Y')
+        plt.plot(aY, 'b')
+
+        plt.subplot(3, 3, (7, 9))
+        plt.title('Position')
+        plt.plot(posX, posY, 'b')
 
         plt.show()
         plt.ginput(1)
+
+        print("end")

@@ -121,7 +121,7 @@ class boardcomputer:
 # to insert measure values, call <<update>>
 #   give measure values and certainity values
 
-    def __init__(self, spaceship: spaceship,  accel_variance: float = None, predictPosition: int = 10, deltaT: float = 0.1):
+    def __init__(self, spaceship: spaceship,  accel_variance: float = 0.1, predictPosition: int = 10, deltaT: float = 0.1):
         """
         position, velocity, acceleration and accel_variance must be a 3-row vector, containing infos about x, y and z!
         """
@@ -131,6 +131,7 @@ class boardcomputer:
         acceleration = np.zeros((3, 1))
         self.__x = np.bmat([[position], [velocity], [acceleration]])
         self.__a_var = accel_variance
+        #self.__a_var = 0
         self.__spaceship = spaceship
         self.__stepT = deltaT
         self.__measurepoint = position
@@ -138,10 +139,10 @@ class boardcomputer:
         # Covarianz des SS
         self.__P = np.eye(9)
         
-        self.__predict = [[], [], []]
-        self.__sigma = [[], [], []]
+        self.__predict = [[], [], [], [], [], [], [], [], []]
+        self.__sigma = [[], [], [], [], [], [], [], [], []]
         for i in range(predictPosition):
-            for dim in range(3):
+            for dim in range(9):
                 self.__predict[dim].append(dim * predictPosition + i)
                 self.__sigma[dim].append(dim * predictPosition + i)
         
@@ -263,7 +264,6 @@ class boardcomputer:
         #print(accel)
 
         if all == False: # calculate just next one position
-            self.__deltaT += self.__stepT
             #print("boardcomputer->compute: deltaT: %f0.1" % (self.__deltaT))
             self.predictAndFill(self.__deltaT, accel)
 
@@ -272,7 +272,6 @@ class boardcomputer:
             for k in range(len(self.__predict[0])):
                 #print("boardcomputer->compute: deltaT: %f0.1 in %d iter" % (self.__deltaT, k))
                 self.predictAndFill(self.__deltaT, accel)
-                self.__deltaT += 0.1
         #print("boardcomputer->compute: return")
 
     def predictAndFill(self, deltaT: float, a_input: np.ndarray):
@@ -282,7 +281,7 @@ class boardcomputer:
         self.predict(deltaT, a_input)
         #print(self.__predict)
         #print(self.__sigma)
-        for dim in range(3): # 0:x, 1:y, 2:z
+        for dim in range(9): # 0:x, 1:y, 2:z 3:vx, 4:vy, 5:vz, 6:ax, 7:ay, 8:az
             #print(dim)
             #print(self.__x[dim, 0].item())
             #print(self.__predict[dim])
