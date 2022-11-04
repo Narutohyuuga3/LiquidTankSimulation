@@ -42,9 +42,11 @@ if __name__ == '__main__':
     root = engine.rootObjects()[0]
     root.startKeyPressed.connect(field.on_keyPressed)
     root.stopKeyPressed.connect(field.on_keyReleased)
+    #root.sendInput.connect(field.on_input)
+
+    #field.updateInput.connect(root.onGetInput)
+    field.updatePrediction.connect(root.onUpdateSpaceshipPrediction)
     field.updateSpaceshipPos.connect(root.onUpdateSpaceshipPos)
-    field.updateSpaceshipMeasurepoint.connect(root.onUpdateSpaceshipMeasurepoint)
-    field.updateSpaceshipEstimation.connect(root.onUpdateSpaceshipEstimation)
     app.lastWindowClosed.connect(field.__del__)
 
     timer = QTimer()

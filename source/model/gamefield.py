@@ -47,13 +47,17 @@ from model.spaceship.spaceship import spaceship
 
 class gamefield(QObject):
 
-    updateSpaceshipPos = pyqtSignal(int, int, int)
-    updateSpaceshipMeasurepoint = pyqtSignal(int, int, int)
-    updateSpaceshipEstimation = pyqtSignal(list)
+    updateSpaceshipPos = pyqtSignal(list, list, list)
+    updatePrediction = pyqtSignal(list, list)
+    updateInput = pyqtSignal(list)
     
     def __init__(self):
         super().__init__()
-        self.__spaceship = spaceship([200, 500, 0], 1500*1000, [[100000000, 95000000],[55000000, 45000000], [0, 0]], [0, 0, 0], nPredict=10, deltaT=0.1)
+        self.__spaceship = spaceship(position=[200, 500, 0], mass=1500*1000, boosterforce=[[100000000, 100000000],[50000000, 50000000], [0, 0]], velocity=[0, 0, 0], nPredict=10, deltaT=0.1)
+        self.__updateTime = 1
+        self.__measureVariance = [100/3, 100/3, 0]
+        #self.updateInput.emit()
+
         self.__keyPressed = False
         self.__dims = ['+', '+', '+']
         self.__keyPressed=[False, False, False]
@@ -80,17 +84,18 @@ class gamefield(QObject):
         while self.__exit == False:
             tic = time.time()
             # Signals emitten, Oberfläche aktualisieren
-            position = self.__spaceship.getPosition()
-            self.updateSpaceshipPos.emit(position[0, 0], position[1, 0], position[2, 0])
-            position = self.__spaceship.getMeasurePoint()
-            self.updateSpaceshipMeasurepoint.emit(position[0, 0], position[1, 0], position[2, 0])
-            
-            listvar = self.__spaceship.getPrediction()
-            self.updateSpaceshipEstimation.emit(listvar)
-
+            position = self.__spaceship.getPositionList()
+            velocity = self.__spaceship.getVelocityList()
+            measurment = self.__spaceship.getMeasurePointList()
+            self.updateSpaceshipPos.emit(position, velocity, measurment)
+            listPosition = self.__spaceship.getPrediction()
+            listVariance = self.__spaceship.getVariance()
+            self.updatePrediction.emit(listPosition, listVariance)
             deltaT = time.time() - tic
             if  deltaT < 0.016: # Proof if elapsed time larger than 16ms
                 time.sleep(0.016 - deltaT) # sleep the missing time
+
+            #self.updateInput.emit()
             #redo everything
     
     def  threadUpdateCalculations(self):
@@ -98,11 +103,7 @@ class gamefield(QObject):
         timeVector = np.array([[0.0],[0.0],[0.0]])
         deltaT = 0
         deltaTUpdate = 0
-        deltaTPredict = 0
-        predictionTimespan = self.__spaceship.getStepT() * 0.8
-        updateTime = 3 # s
-        ticUpdate = tic - updateTime
-        ticPredict = tic + predictionTimespan
+        ticUpdate = tic - self.__updateTime
         while self.__exit == False:
             if deltaT == 0:
                 time.sleep(0.001)
@@ -118,22 +119,16 @@ class gamefield(QObject):
                 self.__spaceship.calcVelocity(timeVector, self.__dims)
 
             self.__spaceship.calculatePosition(deltaT)
-            tic = deltaT + tic
+            tic = time.time()
 
             # check and prediction of boardcomputer
             # nPredict * stepT = Timespan
             # check time to send update
             deltaTUpdate = time.time() - ticUpdate
-            deltaTPredict = time.time() - ticPredict
             dims = self.matchDimsToInput()
-            if deltaTUpdate >= updateTime: # send update to spaceship. Reset timers
-                ticUpdate = ticUpdate + deltaTUpdate
-                ticPredict = ticUpdate + predictionTimespan
-                self.__spaceship.sendUpdate(dims) 
-            
-            elif deltaTPredict >= self.__spaceship.getStepT(): # calculate next prediction, erase first prediction
-                ticPredict = ticPredict + deltaTPredict # reset timer
-                self.__spaceship.sendCompute(dims) 
+            if deltaTUpdate >= self.__updateTime: # send update to spaceship. Reset timers
+                ticUpdate = time.time()
+                self.__spaceship.sendUpdate(dims, self.__measureVariance) 
 
 
     def matchDimsToInput(self):
@@ -180,6 +175,13 @@ class gamefield(QObject):
             self.__keyPressed[2] = False
         else:
             self.__keyPressed[2] = False
+    
+    def on_input(self, numPredictor, updateTime, accelVariance, measureXVariance, measureYVariance):
+        #print("Gamefield->on_input: numPred: %d, time: %f, aVar: %f, measXVar: %f, measYVar: %f" % (numPredictor, updateTime, accelVariance, measureXVariance, measureYVariance))
+        self.__updateTime = updateTime
+        self.__spaceship.setNPrediction(numPredictor)
+        self.__spaceship.setAccelVariance(accelVariance)
+        self.__measureVariance = [measureXVariance, measureYVariance, 0]
 
 if __name__ == '__main__':
     pass

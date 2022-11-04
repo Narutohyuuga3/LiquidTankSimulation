@@ -18,11 +18,12 @@ class spaceship:
     mass = [m] [kg]
     """
 
-    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], nPredict: int = 10, deltaT:float = 0.1):
+    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], accelVar: float = 10.3 ,nPredict: int = 10, deltaT:float = 0.1):
         self._boosterforce = np.array(boosterforce) # [N]
         self.__mass = mass # [kg]
 
-        accelVar = 0.23
+        self.__accelVar = accelVar
+
         self.__position = np.array([[position[0]], [position[1]], [position[2]]])
         self.__velocity = np.array([[velocity[0]], [velocity[1]], [velocity[2]]])
 
@@ -41,9 +42,13 @@ class spaceship:
         self._boosterforce = boosterforce
 
     # getter
+    def getPositionList(self):
+        return self.__position.reshape(3).tolist()
     def getPosition(self):
         return self.__position
     
+    def getVelocityList(self):
+        return self.__velocity.reshape(3).tolist()
     def getVelocity(self):
         return self.__velocity
 
@@ -67,6 +72,12 @@ class spaceship:
     # calculating methods
     def calcVelocity(self, time, dim):
         a = self.getAcceleration(dim)
+        # add variance on it
+        for elem, idx in enumerate(a):
+            #a[idx] = random.gauss(elem, self.__accelVar)
+            #a[idx] = np.random.normal(elem, self.__accelVar)
+            pass
+
         self.__velocity = kinematic.acceleration2velocity(a, time, self.__velocity)
         #print('Spaceship calculateVelocity: x=%f.1, y=%f.1, z=%f.1' %(self._velocity[0,0],self._velocity[1,0],self._velocity[2,0]))
         return self.__velocity
@@ -79,32 +90,38 @@ class spaceship:
     def sendCompute(self, dims: list, all: bool = False):
         self.__computer.compute(dims, all)
 
-    def sendUpdate(self, dims: list = None):
-        #sigm = 0.025
-        sigm = 0.0
-        #x = self.__position[0].item() * random.gauss(1, sigm)
-        #y = self.__position[1].item() * random.gauss(1, sigm)
-        #z = self.__position[2].item() * random.gauss(1, sigm)
-        #x = self.__position[0].item() * np.random.normal(1, sigm)
-        #y = self.__position[1].item() * np.random.normal(1, sigm)
-        #z = self.__position[2].item() * np.random.normal(1, sigm)
-        x = self.__position[0].item()
-        y = self.__position[1].item()
-        z = self.__position[2].item()
-        self.__computer.update([x, y, z], [sigm, sigm, sigm])
+    def sendUpdate(self, dims: list = None, measureVariance: list = [40, 40, 0]):
+        x = random.gauss(self.__position[0].item(), measureVariance[0])
+        y = random.gauss(self.__position[1].item(), measureVariance[1])
+        z = random.gauss(self.__position[2].item(), measureVariance[2])
+        #x = np.random.normal(self.__position[0].item(), measureVariance[0])
+        #y = np.random.normal(self.__position[1].item(), measureVariance[1])
+        #z = np.random.normal(self.__position[2].item(), measureVariance[2])
+        #x = self.__position[0].item()
+        #y = self.__position[1].item()
+        #z = self.__position[2].item()
+        self.__computer.update([x, y, z], measureVariance)
         if dims is None:
             self.__computer.compute(all=True)
         self.__computer.compute(dims, True)
 
+    def setAccelVariance(self, var):
+        self.__computer.accelVar = var
 
     def getStepT(self):
         return self.__computer.stepT
     
+    def setNPrediction(self, val):
+        #print("Spaceship->setNPrediction: val: %d" % (val))
+        self.__computer.nPrediction = val
+
     def getNPrediction(self):
         return self.__computer.nPrediction
 
     def getMeasurePoint(self):
         return self.__computer.measurePoint
+    def getMeasurePointList(self):
+        return self.__computer.measurePoint.reshape(3).tolist()
 
     def getPrediction(self):
         return self.__computer.predictVal
@@ -139,6 +156,7 @@ class boardcomputer:
         # Covarianz des SS
         self.__P = np.eye(9)
         
+        self.__nPredict = predictPosition
         self.__predict = [[], [], [], [], [], [], [], [], []]
         self.__sigma = [[], [], [], [], [], [], [], [], []]
         for i in range(predictPosition):
@@ -181,7 +199,32 @@ class boardcomputer:
 
     @property
     def nPrediction(self):
+        #print("Boardcomputer->nPrediction: getter called")
         return len(self.__predict[0])
+    
+    @nPrediction.setter
+    def nPrediction(self, val: int):
+        #print("Boardcomputer->nPrediction: val: %d" % (val))
+        dif = self.__nPredict - val
+        if dif > 0:
+            for k in range(dif): # remove entries who are to much
+                self.__predict.pop(0)
+                self.__sigma.pop(0)
+        elif dif < 0:
+            for k in range(-1*dif): # add entries who are missing
+                self.__predict.append(self.__predict[-1])
+                self.__sigma.append(self.__sigma[-1])
+
+        self.__nPredict = val
+
+    @property
+    def accelVar(self):
+        return self.__a_var
+
+    @accelVar.setter
+    def accelVar(self, val):
+        #print("Boardcomputer->accelVar: val: %d" % (val))
+        self.__a_var = val
 
     @property
     def currentPredictionTime(self):
@@ -269,7 +312,7 @@ class boardcomputer:
 
         else: # update all predictions and its cetrainty
             self.__deltaT = self.__stepT
-            for k in range(len(self.__predict[0])):
+            for k in range(self.__nPredict):
                 #print("boardcomputer->compute: deltaT: %f0.1 in %d iter" % (self.__deltaT, k))
                 self.predictAndFill(self.__deltaT, accel)
         #print("boardcomputer->compute: return")
@@ -292,7 +335,7 @@ class boardcomputer:
             
             #print(self.__P[dim, dim].item())
             #print(self.__sigma[dim])
-            sigmaStorage[dim].append(np.sqrt(self.__P[dim, dim].item())) # append certainty of position at the end
+            sigmaStorage[dim].append(np.sqrt(self.__P[dim, dim]).item() * 3) # append 99% certainty of position at the end
             #print(self.__sigma[dim])
             sigmaStorage[dim].pop(0) # erase 1st element
             #print(self.__sigma[dim])
