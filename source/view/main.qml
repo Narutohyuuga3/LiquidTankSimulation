@@ -25,9 +25,9 @@ ApplicationWindow {
 
     signal startKeyPressed(string key)
     signal stopKeyPressed(string key)
+    signal sendInput(int numberPredictors, double updateTime, double accelVar, double measXVar, double measYVar)
     
     function onUpdateSpaceshipPos(pos, vel, meas) {
-        //console.log(pos)
         // position
         spaceshipPosX = pos[0]
         spaceshipPosY = pos[1]
@@ -61,6 +61,16 @@ ApplicationWindow {
             
         }
         //console.log("Main.qml onUpdateSpaceshipPos: x=", x, "y=", y)
+    }
+
+    function onGetInput(uiList) {
+        console.log("onGetInput", uiList)
+        id_input.itemAt(0).children[0].children[0].children[1].text = uiList[0]
+        id_input.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[1]) / 1000
+        id_input.itemAt(2).children[0].children[0].children[1].text = Math.round(1000 * uiList[2]) / 1000
+        id_input.itemAt(3).children[0].children[0].children[1].text = Math.round(1000 * uiList[3]) / 1000
+        id_input.itemAt(4).children[0].children[0].children[1].text = Math.round(1000 * uiList[4]) / 1000
+        //console.log("Update: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
     }
 
     Rectangle {
@@ -151,21 +161,23 @@ ApplicationWindow {
                             }
                             TextField {
                                 text: "Placeholder"
+                                validator: DoubleValidator{bottom: 0.0; decimals: 3}
                             }
                         }
                     }
                 }
                 Component.onCompleted: {
                     itemAt(0).children[0].children[0].children[0].text = "No. Predictors" // häää?
-                    itemAt(0).children[0].children[0].children[1].text = spaceshipPosX 
+                    itemAt(0).children[0].children[0].children[1].text = "10"
+                    itemAt(0).children[0].children[0].children[1].validator.decimals = 0
                     itemAt(1).children[0].children[0].children[0].text = "Updatetime [s]"
-                    itemAt(1).children[0].children[0].children[1].text = spaceshipPosY 
+                    itemAt(1).children[0].children[0].children[1].text = "1.5"
                     itemAt(2).children[0].children[0].children[0].text = "Variance acceleration"
-                    itemAt(2).children[0].children[0].children[1].text = "0" 
+                    itemAt(2).children[0].children[0].children[1].text = "1" 
                     itemAt(3).children[0].children[0].children[0].text = "Variance measurement x"
-                    itemAt(3).children[0].children[0].children[1].text = "0" 
+                    itemAt(3).children[0].children[0].children[1].text = "2" 
                     itemAt(4).children[0].children[0].children[0].text = "Variance measurement y"
-                    itemAt(4).children[0].children[0].children[1].text = "0" 
+                    itemAt(4).children[0].children[0].children[1].text = "3" 
                 }
             }
             
@@ -210,6 +222,20 @@ ApplicationWindow {
                 Button {
                     id: id_update
                     text: "Update"
+                    onClicked: {
+                        id_background.focus = true
+                        var nPredict = Math.round(id_input.itemAt(0).children[0].children[0].children[1].text)
+                        if (nPredict < 26){
+                            nPredict = 25
+                            id_input.itemAt(0).children[0].children[0].children[1].text = nPredict
+                        }
+                        var updateTime = id_input.itemAt(1).children[0].children[0].children[1].text
+                        var accelVar = id_input.itemAt(2).children[0].children[0].children[1].text
+                        var measXVar = id_input.itemAt(3).children[0].children[0].children[1].text
+                        var measYVar = id_input.itemAt(4).children[0].children[0].children[1].text
+                        //console.log("Update: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
+                        sendInput(nPredict, updateTime, accelVar, measXVar, measYVar)
+                    }
                 }
             }
         }

@@ -53,11 +53,14 @@ class gamefield(QObject):
     
     def __init__(self):
         super().__init__()
-        self.__spaceship = spaceship(position=[200, 500, 0], mass=1500*1000, boosterforce=[[100000000, 100000000],[50000000, 50000000], [0, 0]], velocity=[0, 0, 0], nPredict=10, deltaT=0.1)
+        position = [200, 500, 0]
+        velocity = [0, 0, 0]
+        nPredict = 10
+        deltaT = 0.1
+        self.__spaceship = spaceship(position=position, mass=1500*1000, boosterforce=[[100000000, 100000000],[50000000, 50000000], [0, 0]], velocity=velocity, nPredict=nPredict, deltaT=deltaT)
         self.__updateTime = 1
         self.__measureVariance = [100/3, 100/3, 0]
-        #self.updateInput.emit()
-
+        
         self.__keyPressed = False
         self.__dims = ['+', '+', '+']
         self.__keyPressed=[False, False, False]
@@ -81,6 +84,17 @@ class gamefield(QObject):
         # - emits signals for surface
         # - sleeps required time
         #print("Gamefield threadUpdateSurface: Ping")
+        # ui
+        time.sleep(1) # wait that qml is created and loaded
+        listUI = []
+        listUI.append(self.__spaceship.getNPrediction())
+        listUI.append(self.__updateTime)
+        listUI.append(self.__spaceship.getaccelVariance())
+        listUI.append(self.__measureVariance[0])
+        listUI.append(self.__measureVariance[1])
+        print(listUI)
+        self.updateInput.emit(listUI)
+
         while self.__exit == False:
             tic = time.time()
             # Signals emitten, Oberfläche aktualisieren
@@ -176,8 +190,8 @@ class gamefield(QObject):
         else:
             self.__keyPressed[2] = False
     
-    def on_input(self, numPredictor, updateTime, accelVariance, measureXVariance, measureYVariance):
-        #print("Gamefield->on_input: numPred: %d, time: %f, aVar: %f, measXVar: %f, measYVar: %f" % (numPredictor, updateTime, accelVariance, measureXVariance, measureYVariance))
+    def on_input(self, numPredictor: int, updateTime: float, accelVariance: float, measureXVariance: float, measureYVariance: float):
+        print("Gamefield->on_input: numPred: %d, time: %f, aVar: %f, measXVar: %f, measYVar: %f" % (numPredictor, updateTime, accelVariance, measureXVariance, measureYVariance))
         self.__updateTime = updateTime
         self.__spaceship.setNPrediction(numPredictor)
         self.__spaceship.setAccelVariance(accelVariance)

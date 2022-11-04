@@ -128,6 +128,8 @@ class spaceship:
     
     def getVariance(self):
         return self.__computer.sigma
+    def getaccelVariance(self):
+        return self.__accelVar
 
 class boardcomputer:
 # to calculate predicted position, just call <<compute>>:
