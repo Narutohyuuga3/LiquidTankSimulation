@@ -84,7 +84,7 @@ class spaceship:
 
     def calculatePosition(self, time):
         self.__position = kinematic.velocity2position(self.__velocity, time, self.__position)
-        #print('Spaceship calculatePosition: x=%f.1, y=%f.1, z=%f.1' %(self._position[0,0],self._position[1,0],self._position[2,0]))
+        #print('Spaceship calculatePosition: x=%f.1, y=%f.1, z=%f.1' %(self.__position[0,0],self.__position[1,0],self.__position[2,0]))
         return self.__position
 
     def sendCompute(self, dims: list, all: bool = False):
@@ -100,7 +100,15 @@ class spaceship:
         #x = self.__position[0].item()
         #y = self.__position[1].item()
         #z = self.__position[2].item()
-        self.__computer.update([x, y, z], measureVariance)
+        #print("Vor")
+        #print(measureVariance)
+        l_measureVariance = measureVariance.copy()
+        for index, elem in enumerate(l_measureVariance):
+            l_measureVariance[index] = elem**2
+        #print("Danach")
+        #print(measureVariance)
+
+        self.__computer.update([x, y, z], l_measureVariance)
         if dims is None:
             self.__computer.compute(all=True)
         self.__computer.compute(dims, True)

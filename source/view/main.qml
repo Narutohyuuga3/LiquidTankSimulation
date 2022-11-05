@@ -33,7 +33,7 @@ ApplicationWindow {
         spaceshipPosY = pos[1]
         //interface
         id_output.itemAt(0).children[0].children[0].children[1].text = Math.round(spaceshipPosX * 100) / 100
-        id_output.itemAt(1).children[0].children[0].children[1].text = Math.round(spaceshipPosX * 100) / 100
+        id_output.itemAt(1).children[0].children[0].children[1].text = Math.round(spaceshipPosY * 100) / 100
         id_output.itemAt(2).children[0].children[0].children[1].text = Math.round(vel[0] * 100) / 100
         id_output.itemAt(3).children[0].children[0].children[1].text = Math.round(-1 * vel[1] * 100) / 100
         // measurment
@@ -245,22 +245,18 @@ ApplicationWindow {
     Repeater{
         id: id_predictorRepeater
         model: 10
-        Rectangle {
+        Item {
             height: 10
             width: 10
             //radius: width*0.5
             x: 20
             y: 20
             Canvas{
-                id: id_canvas
                 anchors.fill: parent
                 onPaint:{
-                    var ctx = id_canvas.getContext('2d');
+                    var ctx = getContext('2d');
                     ctx.reset()
-                    ctx.fillStyle= "rgba(0, 0, 0, 1)"
-                    ctx.fillRect(0, 0, parent.width + 1, parent.height + 1)
-                    ctx.closePath()
-                    
+
                     ctx.ellipse(1, 1, parent.width - 2, parent.height - 2)
                     ctx.fillStyle= "red"
                     ctx.fill()

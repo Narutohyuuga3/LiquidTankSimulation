@@ -57,9 +57,10 @@ class gamefield(QObject):
         velocity = [0, 0, 0]
         nPredict = 10
         deltaT = 0.1
-        self.__spaceship = spaceship(position=position, mass=1500*1000, boosterforce=[[100000000, 100000000],[50000000, 50000000], [0, 0]], velocity=velocity, nPredict=nPredict, deltaT=deltaT)
+        aVar = 150
+        self.__spaceship = spaceship(position=position, mass=1500*1000, boosterforce=[[100000000, 100000000],[50000000, 50000000], [0, 0]], velocity=velocity, accelVar= aVar, nPredict=nPredict, deltaT=deltaT)
         self.__updateTime = 1
-        self.__measureVariance = [100/3, 100/3, 0]
+        self.__measureVariance = [10, 10, 0]
         
         self.__keyPressed = False
         self.__dims = ['+', '+', '+']
