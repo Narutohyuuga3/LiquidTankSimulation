@@ -57,10 +57,10 @@ class gamefield(QObject):
         velocity = [0, 0, 0]
         nPredict = 10
         deltaT = 0.1
-        aVar = 150
-        self.__spaceship = spaceship(position=position, mass=1500*1000, boosterforce=[[100000000, 100000000],[50000000, 50000000], [0, 0]], velocity=velocity, accelVar= aVar, nPredict=nPredict, deltaT=deltaT)
+        boosterDev = 4_500_000 #
+        self.__spaceship = spaceship(position=position, mass=2900*1000, boosterforce=[[34_500_000, 34_500_000],[34_500_000, 34_500_000], [0, 0]], velocity=velocity, boosterforceDev= boosterDev, nPredict=nPredict, deltaT=deltaT)
         self.__updateTime = 1
-        self.__measureVariance = [10, 10, 0]
+        self.__measureDeviation = [10, 10, 0]
         
         self.__keyPressed = False
         self.__dims = ['+', '+', '+']
@@ -90,9 +90,9 @@ class gamefield(QObject):
         listUI = []
         listUI.append(self.__spaceship.getNPrediction())
         listUI.append(self.__updateTime)
-        listUI.append(self.__spaceship.getaccelVariance())
-        listUI.append(self.__measureVariance[0])
-        listUI.append(self.__measureVariance[1])
+        listUI.append(self.__spaceship.getBoosterforceDeviation())
+        listUI.append(self.__measureDeviation[0])
+        listUI.append(self.__measureDeviation[1])
         print(listUI)
         self.updateInput.emit(listUI)
 
@@ -104,8 +104,8 @@ class gamefield(QObject):
             measurment = self.__spaceship.getMeasurePointList()
             self.updateSpaceshipPos.emit(position, velocity, measurment)
             listPosition = self.__spaceship.getPrediction()
-            listVariance = self.__spaceship.getVariance()
-            self.updatePrediction.emit(listPosition, listVariance)
+            listDeviation = self.__spaceship.getDeviation()
+            self.updatePrediction.emit(listPosition, listDeviation)
             deltaT = time.time() - tic
             if  deltaT < 0.016: # Proof if elapsed time larger than 16ms
                 time.sleep(0.016 - deltaT) # sleep the missing time
@@ -143,8 +143,7 @@ class gamefield(QObject):
             dims = self.matchDimsToInput()
             if deltaTUpdate >= self.__updateTime: # send update to spaceship. Reset timers
                 ticUpdate = time.time()
-                self.__spaceship.sendUpdate(dims, self.__measureVariance) 
-
+                self.__spaceship.sendUpdate(dims, self.__measureDeviation) 
 
     def matchDimsToInput(self):
         dims = [0, 0, 0]
@@ -191,12 +190,18 @@ class gamefield(QObject):
         else:
             self.__keyPressed[2] = False
     
-    def on_input(self, numPredictor: int, updateTime: float, accelVariance: float, measureXVariance: float, measureYVariance: float):
-        print("Gamefield->on_input: numPred: %d, time: %f, aVar: %f, measXVar: %f, measYVar: %f" % (numPredictor, updateTime, accelVariance, measureXVariance, measureYVariance))
+    def on_input(self, numPredictor: int, updateTime: float, boosterforceDeviation: float, measureDeviationX: float, measureDeviationY: float):
+        print("Gamefield->on_input: numPred: %d, time: %f, aDev: %f, measDevX: %f, measDevY: %f" % (numPredictor, updateTime, boosterforceDeviation, measureDeviationX, measureDeviationY))
+        #print(f"Gamefield on_input: updateTime pre: {self.__updateTime}")
         self.__updateTime = updateTime
+        deltaT = updateTime/numPredictor
+        #print(f"Gamefield on_input: updateTime after: {self.__updateTime}")
         self.__spaceship.setNPrediction(numPredictor)
-        self.__spaceship.setAccelVariance(accelVariance)
-        self.__measureVariance = [measureXVariance, measureYVariance, 0]
+        self.__spaceship.setDeltaT(deltaT)
+        self.__spaceship.setBoosterforceDeviation(boosterforceDeviation)
+        #print(f"Gamefield on_input: measureDeviation pre: {self.__measureDeviation}")
+        self.__measureDeviation = [measureDeviationX, measureDeviationY, 0]
+        #print(f"Gamefield on_input: measureDeviation after: {self.__measureDeviation}")
 
 if __name__ == '__main__':
     pass

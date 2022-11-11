@@ -18,14 +18,14 @@ ApplicationWindow {
     property var spaceshipEstimationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
     property var spaceshipEstimationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
     
-    property var spaceshipVarianceX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
-    property var spaceshipVarianceY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
+    property var spaceshipDeviationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
+    property var spaceshipDeviationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
 
     property int numberPredictors: 10
 
     signal startKeyPressed(string key)
     signal stopKeyPressed(string key)
-    signal sendInput(int numberPredictors, double updateTime, double accelVar, double measXVar, double measYVar)
+    signal sendInput(int numberPredictors, double updateTime, double boosterforceDev, double measXDev, double measYDev)
     
     function onUpdateSpaceshipPos(pos, vel, meas) {
         // position
@@ -41,36 +41,42 @@ ApplicationWindow {
         spaceshipMeasurepointY = meas[1]
     }
 
-    function onUpdateSpaceshipPrediction(prediction, predictVariance) {
+    function onUpdateSpaceshipPrediction(prediction, predictDeviation) {
         // prediction
         spaceshipEstimationX = prediction[0]
         spaceshipEstimationY = prediction[1]
-        spaceshipVarianceX = predictVariance[0]
-        spaceshipVarianceY = predictVariance[1]
-        //console.log(spaceshipVarianceX)
-        //console.log("Main.qml onUpdateSpaceshipEstimation: x=", spaceshipEstimationX, "y=", spaceshipEstimationY)
+        spaceshipDeviationX = predictDeviation[0]
+        spaceshipDeviationY = predictDeviation[1]
+        //console.log("Main.qml->onUpdateSpaceshipPrediction: Prediction input-array: ", prediction)
+        //console.log("Main.qml->onUpdateSpaceshipPrediction: PredictionDeviation input-array: ", predictDeviation)
+        //console.log("Main.qml->onUpdateSpaceshipEstimation: position estimation x: ", spaceshipDeviationX)
+        //console.log("Main.qml->onUpdateSpaceshipEstimation: x=", spaceshipEstimationX, "y=", spaceshipEstimationY)
+        for (var i=0; i < id_predictorRepeater.model; i++){
+            id_predictorRepeater.itemAt(i).visible = false
+        }
         for (var i in main.spaceshipEstimationX){
-            //console.log(i)
+            id_predictorRepeater.itemAt(i).visible = true
+            //console.log("Main.qml->onUpdateSpaceshipEstimation: index i: "i)
             //id_predictorRepeater.itemAt(i).x = spaceshipEstimationX[i] - id_predictorRepeater.itemAt(i).width * 0.5
             //id_predictorRepeater.itemAt(i).y = spaceshipEstimationY[i] - id_predictorRepeater.itemAt(i).height * 0.5
             
-            id_predictorRepeater.itemAt(i).width = spaceshipVarianceX[i] + 1
-            id_predictorRepeater.itemAt(i).height = spaceshipVarianceY[i] + 1
+            id_predictorRepeater.itemAt(i).width = spaceshipDeviationX[i] + 1
+            id_predictorRepeater.itemAt(i).height = spaceshipDeviationY[i] + 1
             id_predictorRepeater.itemAt(i).x = spaceshipEstimationX[i]- id_predictorRepeater.itemAt(i).width * 0.5 
             id_predictorRepeater.itemAt(i).y = spaceshipEstimationY[i]- id_predictorRepeater.itemAt(i).height * 0.5
             
         }
-        //console.log("Main.qml onUpdateSpaceshipPos: x=", x, "y=", y)
+        //console.log("Main.qml->onUpdateSpaceshipPos: x=", x, "y=", y)
     }
 
     function onGetInput(uiList) {
-        console.log("onGetInput", uiList)
+        console.log("Main.qml->onGetInput", uiList)
         id_input.itemAt(0).children[0].children[0].children[1].text = uiList[0]
         id_input.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[1]) / 1000
         id_input.itemAt(2).children[0].children[0].children[1].text = Math.round(1000 * uiList[2]) / 1000
         id_input.itemAt(3).children[0].children[0].children[1].text = Math.round(1000 * uiList[3]) / 1000
         id_input.itemAt(4).children[0].children[0].children[1].text = Math.round(1000 * uiList[4]) / 1000
-        //console.log("Update: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
+        //console.log("Main.qml->onGetInput: Update: nPredict, updateTime, accelDev, measXDev, measYDev: ", nPredict, updateTime, accelVar, measXVar, measYVar)
     }
 
     Rectangle {
@@ -135,7 +141,7 @@ ApplicationWindow {
         id: id_areaIO
         x: parent.width - width
         y: 0
-        width: 200
+        width: 300
         height: parent.height
         color: "black"
         Column {
@@ -148,12 +154,12 @@ ApplicationWindow {
                 Row {
                     height: 25
                     width: parent.width
-                    //Component.onCompleted: print(x, y, width, height)
+                    //Component.onCompleted: print("Main.qml->Repeater Input: "x, y, width, height)
                     Rectangle {
                         height: parent.height
                         width: parent.width
                         color: "white"
-                        //Component.onCompleted: print("Rect: ", x, y, width, height)
+                        //Component.onCompleted: print("Main.qml->Rect Input: ", x, y, width, height)
                         Row{
                             spacing: 3
                             Text {
@@ -172,11 +178,11 @@ ApplicationWindow {
                     itemAt(0).children[0].children[0].children[1].validator.decimals = 0
                     itemAt(1).children[0].children[0].children[0].text = "Updatetime [s]"
                     itemAt(1).children[0].children[0].children[1].text = "1.5"
-                    itemAt(2).children[0].children[0].children[0].text = "Variance acceleration"
-                    itemAt(2).children[0].children[0].children[1].text = "1" 
-                    itemAt(3).children[0].children[0].children[0].text = "Variance measurement x"
+                    itemAt(2).children[0].children[0].children[0].text = "Standard deviation boosterforce"
+                    itemAt(2).children[0].children[0].children[1].text = "150" 
+                    itemAt(3).children[0].children[0].children[0].text = "Standard deviation measurement x"
                     itemAt(3).children[0].children[0].children[1].text = "2" 
-                    itemAt(4).children[0].children[0].children[0].text = "Variance measurement y"
+                    itemAt(4).children[0].children[0].children[0].text = "Standard deviation measurement y"
                     itemAt(4).children[0].children[0].children[1].text = "3" 
                 }
             }
@@ -225,7 +231,8 @@ ApplicationWindow {
                     onClicked: {
                         id_background.focus = true
                         var nPredict = Math.round(id_input.itemAt(0).children[0].children[0].children[1].text)
-                        if (nPredict < 26){
+                        console.log("Button update: nPredict: ", nPredict)
+                        if (nPredict > 25){
                             nPredict = 25
                             id_input.itemAt(0).children[0].children[0].children[1].text = nPredict
                         }
@@ -233,7 +240,7 @@ ApplicationWindow {
                         var accelVar = id_input.itemAt(2).children[0].children[0].children[1].text
                         var measXVar = id_input.itemAt(3).children[0].children[0].children[1].text
                         var measYVar = id_input.itemAt(4).children[0].children[0].children[1].text
-                        //console.log("Update: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
+                        //console.log("Main.qml->UpdateButton: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
                         sendInput(nPredict, updateTime, accelVar, measXVar, measYVar)
                     }
                 }
@@ -244,13 +251,14 @@ ApplicationWindow {
     // Here everything to draw on Display
     Repeater{
         id: id_predictorRepeater
-        model: 10
+        model: 25
         Item {
             height: 10
             width: 10
             //radius: width*0.5
             x: 20
             y: 20
+            visible: false
             Canvas{
                 anchors.fill: parent
                 onPaint:{
