@@ -15,12 +15,15 @@ ApplicationWindow {
     property var spaceshipMeasurepointX: 500
     property var spaceshipMeasurepointY: 500
 
-    property var spaceshipEstimationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
-    property var spaceshipEstimationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
+    //property var spaceshipEstimationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
+    //property var spaceshipEstimationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
+    property var spaceshipEstimationX
+    property var spaceshipEstimationY
+    //property var spaceshipDeviationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
+    //property var spaceshipDeviationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
+    property var spaceshipDeviationX
+    property var spaceshipDeviationY
     
-    property var spaceshipDeviationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
-    property var spaceshipDeviationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
-
     property int numberPredictors: 10
 
     signal startKeyPressed(string key)
@@ -47,9 +50,9 @@ ApplicationWindow {
         spaceshipEstimationY = prediction[1]
         spaceshipDeviationX = predictDeviation[0]
         spaceshipDeviationY = predictDeviation[1]
-        //console.log("Main.qml->onUpdateSpaceshipPrediction: Prediction input-array: ", prediction)
+        console.log("Main.qml->onUpdateSpaceshipPrediction: Prediction input-array length: ", prediction[0].length)
         //console.log("Main.qml->onUpdateSpaceshipPrediction: PredictionDeviation input-array: ", predictDeviation)
-        //console.log("Main.qml->onUpdateSpaceshipEstimation: position estimation x: ", spaceshipDeviationX)
+        //console.log("Main.qml->onUpdateSpaceshipEstimation: position    estimation length: ", predictDeviation[0].length)
         //console.log("Main.qml->onUpdateSpaceshipEstimation: x=", spaceshipEstimationX, "y=", spaceshipEstimationY)
         for (var i=0; i < id_predictorRepeater.model; i++){
             id_predictorRepeater.itemAt(i).visible = false
@@ -173,8 +176,9 @@ ApplicationWindow {
                     }
                 }
                 Component.onCompleted: {
-                    itemAt(0).children[0].children[0].children[0].text = "No. Predictors" // häää?
+                    itemAt(0).children[0].children[0].children[0].text = "No. Predictors"
                     itemAt(0).children[0].children[0].children[1].text = "10"
+                    itemAt(0).children[0].children[0].children[1].validator.bottom = 1.0
                     itemAt(0).children[0].children[0].children[1].validator.decimals = 0
                     itemAt(1).children[0].children[0].children[0].text = "Updatetime [s]"
                     itemAt(1).children[0].children[0].children[1].text = "1.5"
@@ -234,6 +238,10 @@ ApplicationWindow {
                         console.log("Button update: nPredict: ", nPredict)
                         if (nPredict > 25){
                             nPredict = 25
+                            id_input.itemAt(0).children[0].children[0].children[1].text = nPredict
+                        }
+                        else if (nPredict < 1){
+                            nPredict = 1
                             id_input.itemAt(0).children[0].children[0].children[1].text = nPredict
                         }
                         var updateTime = id_input.itemAt(1).children[0].children[0].children[1].text

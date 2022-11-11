@@ -1,6 +1,6 @@
 import numpy as np
 from ..physics.kinematic import kinematic
-import random
+import random, copy
 
 class spaceship:
     """
@@ -171,16 +171,21 @@ class boardcomputer:
         self.__deltaT = deltaT
         self.__measurepoint = position
 
+        self.__newStorageAvaible = False
+
         # Covarianz des SS
         self.__P = np.eye(9)
         
         self.__nPredict = predictPosition
+        self.__newNPredict = self.__nPredict
         self.__predict = [[], [], [], [], [], [], [], [], []]
-        self.__sigma = [[], [], [], [], [], [], [], [], []]
         for i in range(predictPosition):
             for dim in range(9):
                 self.__predict[dim].append(dim * predictPosition + i)
-                self.__sigma[dim].append(dim * predictPosition + i)
+
+        self.__sigma = copy.deepcopy(self.__predict)
+        self.__newPredict = copy.deepcopy(self.__predict)
+        self.__newSigma = copy.deepcopy(self.__predict)
     
     #############################
     #### Getter/Setter
@@ -229,17 +234,29 @@ class boardcomputer:
     @nPrediction.setter
     def nPrediction(self, val: int):
         #print("Boardcomputer->nPrediction: val: %d" % (val))
-        diff = self.__nPredict - val
-        if diff > 0:
-            for k in range(diff): # remove entries who are to much
-                self.__predict.pop(0)
-                self.__sigma.pop(0)
-        elif diff < 0:
-            for k in range(-1*diff): # add entries who are missing
-                self.__predict.append(self.__predict[-1])
-                self.__sigma.append(self.__sigma[-1])
+        diff = val - self.__nPredict
+        #print(f"Boardcomputer->nPrediction.setter: target is: {val}, current amount: {self.__nPredict}")
+        #print(f"Boardcomputer->nPrediction.setter: difference {diff}")
+        self.__newSigma = copy.deepcopy(self.__sigma)
+        self.__newPredict = copy.deepcopy(self.__predict)
+        #print(f"Boardcomputer->nPrediction.setter: old dim: {len(self.__newPredict[0])}")
+        for idx in range(len(self.__newPredict)):
+            if diff > 0:
+                for k in range(diff): # add entries who are missing
+                    #print(f"Boardcomputer->nPrediction.setter: {k}-iter of {diff} in dim {idx}")
+                    self.__newPredict[idx].append(0)
+                    self.__newSigma[idx].append(0)
+            elif diff < 0:
+                for k in range(-1*diff): # remove entries who are too much
+                    #print(f"Boardcomputer->nPrediction.setter: {k}-iter of {diff} in dim {idx}")
+                    self.__newPredict[idx].pop()
+                    self.__newSigma[idx].pop()
+        #print(f"Boardcomputer->nPrediction.setter: new dim rows: {len(self.__newPredict)}")
+        #print(f"Boardcomputer->nPrediction.setter: new dim cols: {len(self.__newPredict[0])}")
+        #print(f"Boardcomputer->nPrediction.setter: target was: {val}")
 
-        self.__nPredict = val
+        self.__newNPredict = val
+        self.__newStorageAvaible = True
 
     @property
     def measurePoint(self):
@@ -321,6 +338,13 @@ class boardcomputer:
     def compute(self, accelVar: float, accel: np.ndarray = None, all: bool = False):
         # updates the time for prediction and initialize the predictionAndFill
         # decide if just a new point gets calculated or all prediction gets updated
+        if self.__newStorageAvaible:
+            print("Boardcomputer->compute: update variable containers")
+            self.__predict = copy.deepcopy(self.__newPredict)
+            self.__sigma = copy.deepcopy(self.__newSigma)
+            self.__nPredict = self.__newNPredict
+            self.__newStorageAvaible = False
+
         if all == False: # calculate just next one position
             #print("Boardcomputer->compute: deltaT: %f0.1" % (self.__deltaT))
             self.predictAndFill(self.__deltaT, accel, accelVar)

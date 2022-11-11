@@ -105,6 +105,10 @@ class gamefield(QObject):
             self.updateSpaceshipPos.emit(position, velocity, measurment)
             listPosition = self.__spaceship.getPrediction()
             listDeviation = self.__spaceship.getDeviation()
+            #print(f"Gamefield->updateSurface:  listPosition: {listPosition}")
+            #print(f"Gamefield->updateSurface:   listPosition row: {len(listPosition)}")
+            #print(f"Gamefield->updateSurface:  listPosition cols: {len(listPosition[0])}")
+            #print(f"Gamefield->updateSurface: listDeviation: {listDeviation}")
             self.updatePrediction.emit(listPosition, listDeviation)
             deltaT = time.time() - tic
             if  deltaT < 0.016: # Proof if elapsed time larger than 16ms
