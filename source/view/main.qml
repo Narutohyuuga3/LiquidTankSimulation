@@ -4,81 +4,67 @@ import QtQuick.Controls 2.15
 ApplicationWindow {
     visible: true
     width: 1580
-    //width: 800
     height: 830
     title: "pySpace"
-    id: main
-
-    property int spaceshipPosX: 500
-    property int spaceshipPosY: 500
-
-    property var spaceshipMeasurepointX: 500
-    property var spaceshipMeasurepointY: 500
-
-    //property var spaceshipEstimationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
-    //property var spaceshipEstimationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
-    property var spaceshipEstimationX
-    property var spaceshipEstimationY
-    //property var spaceshipDeviationX: [500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750]
-    //property var spaceshipDeviationY: [500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500]
-    property var spaceshipDeviationX
-    property var spaceshipDeviationY
-    
-    property int numberPredictors: 10
 
     signal startKeyPressed(string key)
     signal stopKeyPressed(string key)
-    signal sendInput(int numberPredictors, double updateTime, double boosterforceDev, double measXDev, double measYDev)
+    signal sendInput(int numberPredictors, double updateTime, double boosterforceDev, double measXDev, double measYDev, int mass, double boosterforceNegX, double boosterforcePosX, double boosterforceNegY, double boosterforcePosY)
     
     function onUpdateSpaceshipPos(pos, vel, meas) {
         // position
-        spaceshipPosX = pos[0]
-        spaceshipPosY = pos[1]
+        id_spaceship.x = pos[0] - id_spaceship.width * 0.5
+        id_spaceship.y = pos[1] - id_spaceship.height * 0.5
         //interface
-        id_output.itemAt(0).children[0].children[0].children[1].text = Math.round(spaceshipPosX * 100) / 100
-        id_output.itemAt(1).children[0].children[0].children[1].text = Math.round(spaceshipPosY * 100) / 100
+        id_output.itemAt(0).children[0].children[0].children[1].text = Math.round(id_spaceship.x * 100) / 100
+        id_output.itemAt(1).children[0].children[0].children[1].text = Math.round(id_spaceship.y * 100) / 100
         id_output.itemAt(2).children[0].children[0].children[1].text = Math.round(vel[0] * 100) / 100
         id_output.itemAt(3).children[0].children[0].children[1].text = Math.round(-1 * vel[1] * 100) / 100
         // measurment
-        spaceshipMeasurepointX = meas[0]
-        spaceshipMeasurepointY = meas[1]
+        id_spaceshipMeasurement.x = meas[0] - id_spaceshipMeasurement.width * 0.5
+        id_spaceshipMeasurement.y = meas[1] - id_spaceshipMeasurement.height * 0.5
     }
 
     function onUpdateSpaceshipPrediction(prediction, predictDeviation) {
         // prediction
-        spaceshipEstimationX = prediction[0]
-        spaceshipEstimationY = prediction[1]
-        spaceshipDeviationX = predictDeviation[0]
-        spaceshipDeviationY = predictDeviation[1]
-        console.log("Main.qml->onUpdateSpaceshipPrediction: Prediction input-array length: ", prediction[0].length)
+        var l_spaceshipEstimationX = prediction[0]
+        var l_spaceshipEstimationY = prediction[1]
+        var l_spaceshipDeviationX = predictDeviation[0]
+        var l_spaceshipDeviationY = predictDeviation[1]
+        //console.log("Main.qml->onUpdateSpaceshipPrediction: Prediction input-array length: ", prediction[0].length)
         //console.log("Main.qml->onUpdateSpaceshipPrediction: PredictionDeviation input-array: ", predictDeviation)
         //console.log("Main.qml->onUpdateSpaceshipEstimation: position    estimation length: ", predictDeviation[0].length)
-        //console.log("Main.qml->onUpdateSpaceshipEstimation: x=", spaceshipEstimationX, "y=", spaceshipEstimationY)
+        //console.log("Main.qml->onUpdateSpaceshipEstimation: x=", l_spaceshipEstimationX, "y=", l_spaceshipEstimationY)
         for (var i=0; i < id_predictorRepeater.model; i++){
             id_predictorRepeater.itemAt(i).visible = false
         }
-        for (var i in main.spaceshipEstimationX){
+        for (var i in l_spaceshipEstimationX){
             id_predictorRepeater.itemAt(i).visible = true
             //console.log("Main.qml->onUpdateSpaceshipEstimation: index i: "i)
-            //id_predictorRepeater.itemAt(i).x = spaceshipEstimationX[i] - id_predictorRepeater.itemAt(i).width * 0.5
-            //id_predictorRepeater.itemAt(i).y = spaceshipEstimationY[i] - id_predictorRepeater.itemAt(i).height * 0.5
+            //id_predictorRepeater.itemAt(i).x = l_spaceshipEstimationX[i] - id_predictorRepeater.itemAt(i).width * 0.5
+            //id_predictorRepeater.itemAt(i).y = l_spaceshipEstimationY[i] - id_predictorRepeater.itemAt(i).height * 0.5
             
-            id_predictorRepeater.itemAt(i).width = spaceshipDeviationX[i] + 1
-            id_predictorRepeater.itemAt(i).height = spaceshipDeviationY[i] + 1
-            id_predictorRepeater.itemAt(i).x = spaceshipEstimationX[i]- id_predictorRepeater.itemAt(i).width * 0.5 
-            id_predictorRepeater.itemAt(i).y = spaceshipEstimationY[i]- id_predictorRepeater.itemAt(i).height * 0.5
+            id_predictorRepeater.itemAt(i).width = l_spaceshipDeviationX[i] + 1
+            id_predictorRepeater.itemAt(i).height = l_spaceshipDeviationY[i] + 1
+            id_predictorRepeater.itemAt(i).x = l_spaceshipEstimationX[i]- id_predictorRepeater.itemAt(i).width * 0.5 
+            id_predictorRepeater.itemAt(i).y = l_spaceshipEstimationY[i]- id_predictorRepeater.itemAt(i).height * 0.5
             
         }
         //console.log("Main.qml->onUpdateSpaceshipPos: x=", x, "y=", y)
     }
 
     function onGetInput(uiList) {
-        console.log("Main.qml->onGetInput", uiList)
+        //console.log("Main.qml->onGetInput", uiList)
         id_input.itemAt(0).children[0].children[0].children[1].text = uiList[0]
         id_input.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[1]) / 1000
         id_input.itemAt(2).children[0].children[0].children[1].text = Math.round(1000 * uiList[2]) / 1000
         id_input.itemAt(3).children[0].children[0].children[1].text = Math.round(1000 * uiList[3]) / 1000
         id_input.itemAt(4).children[0].children[0].children[1].text = Math.round(1000 * uiList[4]) / 1000
+        id_input.itemAt(5).children[0].children[0].children[1].text = Math.round(1000 * uiList[5]) / 1000
+        id_inBoosterforce.itemAt(0).children[0].children[0].children[1].text = Math.round(1000 * uiList[6]) / 1000
+        id_inBoosterforce.itemAt(0).children[0].children[0].children[3].text = Math.round(1000 * uiList[7]) / 1000
+        id_inBoosterforce.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[8]) / 1000
+        id_inBoosterforce.itemAt(1).children[0].children[0].children[3].text = Math.round(1000 * uiList[9]) / 1000
         //console.log("Main.qml->onGetInput: Update: nPredict, updateTime, accelDev, measXDev, measYDev: ", nPredict, updateTime, accelVar, measXVar, measYVar)
     }
 
@@ -153,7 +139,7 @@ ApplicationWindow {
             
             Repeater {
                 id: id_input
-                model: 5
+                model: 6
                 Row {
                     height: 25
                     width: parent.width
@@ -187,7 +173,62 @@ ApplicationWindow {
                     itemAt(3).children[0].children[0].children[0].text = "Standard deviation measurement x"
                     itemAt(3).children[0].children[0].children[1].text = "2" 
                     itemAt(4).children[0].children[0].children[0].text = "Standard deviation measurement y"
-                    itemAt(4).children[0].children[0].children[1].text = "3" 
+                    itemAt(4).children[0].children[0].children[1].text = "3"
+                    itemAt(5).children[0].children[0].children[0].text = "Mass"
+                    itemAt(5).children[0].children[0].children[1].text = "4"
+                }
+            }
+            Row{
+                height:25
+                width: parent.width
+                Rectangle{
+                    height: 25
+                    width: parent.width
+                    color: "white"
+                    Text{
+                        text: "Bosterforce"
+                    }
+                }
+            }
+            Repeater{
+                id: id_inBoosterforce
+                model: 2
+                Row{
+                    height: 25
+                    width: parent.width
+                    Rectangle{
+                        height: parent.height
+                        width: parent.width
+                        color: "white"
+                        Row {
+                            spacing: 3
+                            Text {
+                                text: "Placeholder"
+                            }
+                            TextField {
+                                text: "Placeholder"
+                                validator: DoubleValidator{bottom: 0.0; decimals: 3}
+                            }
+                            Text {
+                                text: "Placeholder"
+                            }
+                            TextField {
+                                text: "Placeholder"
+                                validator: DoubleValidator{bottom: 0.0; decimals: 3}
+                            }
+                        }
+                    }
+                }
+                Component.onCompleted: {
+                    itemAt(0).children[0].children[0].children[0].text = "X:"
+                    itemAt(0).children[0].children[0].children[1].text = "1"
+                    itemAt(0).children[0].children[0].children[2].text = ":"
+                    itemAt(0).children[0].children[0].children[3].text = "2"
+                    itemAt(1).children[0].children[0].children[0].text = "Y:"
+                    itemAt(1).children[0].children[0].children[1].text = "3"
+                    itemAt(1).children[0].children[0].children[2].text = ":"
+                    itemAt(1).children[0].children[0].children[3].text = "4"
+                    
                 }
             }
             
@@ -216,9 +257,9 @@ ApplicationWindow {
                 }
                 Component.onCompleted: {
                     itemAt(0).children[0].children[0].children[0].text = "Pos X:" // häää?
-                    itemAt(0).children[0].children[0].children[1].text = spaceshipPosX
+                    itemAt(0).children[0].children[0].children[1].text = id_spaceship.x
                     itemAt(1).children[0].children[0].children[0].text = "Pos Y:"
-                    itemAt(1).children[0].children[0].children[1].text = spaceshipPosY
+                    itemAt(1).children[0].children[0].children[1].text = id_spaceship.y
                     itemAt(2).children[0].children[0].children[0].text = "Vel X:"
                     itemAt(2).children[0].children[0].children[1].text = "0"
                     itemAt(3).children[0].children[0].children[0].text = "Vel Y:"
@@ -248,8 +289,20 @@ ApplicationWindow {
                         var accelVar = id_input.itemAt(2).children[0].children[0].children[1].text
                         var measXVar = id_input.itemAt(3).children[0].children[0].children[1].text
                         var measYVar = id_input.itemAt(4).children[0].children[0].children[1].text
+                        var mass = id_input.itemAt(5).children[0].children[0].children[1].text
+
+                        var boosterforce_negx = id_inBoosterforce.itemAt(0).children[0].children[0].children[1].text
+                        var boosterforce_posx = id_inBoosterforce.itemAt(0).children[0].children[0].children[3].text
+                        var boosterforce_negy = id_inBoosterforce.itemAt(1).children[0].children[0].children[1].text
+                        var boosterforce_posy = id_inBoosterforce.itemAt(1).children[0].children[0].children[3].text
+                        //var boosterforceArray = new Array(0)
+                        //boosterforceArray.push(boosterforce_negx)
+                        //boosterforceArray.push(boosterforce_posx)
+                        //boosterforceArray.push(boosterforce_negy)
+                        //boosterforceArray.push(boosterforce_posy)
                         //console.log("Main.qml->UpdateButton: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
-                        sendInput(nPredict, updateTime, accelVar, measXVar, measYVar)
+                        //console.log("Main.qml->UpdateButton: boosterforce: ", boosterforceArray)
+                        sendInput(nPredict, updateTime, accelVar, measXVar, measYVar, mass, boosterforce_negx, boosterforce_posx, boosterforce_negy, boosterforce_posy)
                     }
                 }
             }
@@ -292,8 +345,8 @@ ApplicationWindow {
         id: id_spaceship
         height: 40
         width: 40
-        x: main.spaceshipPosX - width/2
-        y: main.spaceshipPosY - height/2
+        x: 5
+        y: 5
         //source: "qrc:/icons/spaceship.png"
         //source: "spaceship:spaceship.png"
         source: "icon:Spaceship/spaceship.png"
@@ -301,13 +354,12 @@ ApplicationWindow {
     }
 
     Rectangle {
-        id: id_spaceshipRealPosition
         height: 10
         width: 10
         radius: width*0.5
         color: "green"
-        x: main.spaceshipPosX - width/2
-        y: main.spaceshipPosY - height/2
+        x: id_spaceship.x + (id_spaceship.width - width) * 0.5
+        y: id_spaceship.y + (id_spaceship.height - height) * 0.5
     }
 
     Rectangle {
@@ -316,7 +368,7 @@ ApplicationWindow {
         width: 10
         radius: width*0.5
         color: "blue"
-        x: main.spaceshipMeasurepointX - width/2
-        y: main.spaceshipMeasurepointY - height/2
+        x: 5
+        y: 5
     }
 }

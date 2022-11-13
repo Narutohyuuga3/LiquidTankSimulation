@@ -93,7 +93,12 @@ class gamefield(QObject):
         listUI.append(self.__spaceship.getBoosterforceDeviation())
         listUI.append(self.__measureDeviation[0])
         listUI.append(self.__measureDeviation[1])
-        print(listUI)
+        listUI.append(self.__spaceship.getMass())
+        boosterforce = self.__spaceship.getBoosterforce()
+        for elemRow in boosterforce:
+            for elemCol in elemRow:
+                listUI.append(elemCol)
+        #print(f"Gamefield->threadUpdateSurface: lisstUI: {listUI}")
         self.updateInput.emit(listUI)
 
         while self.__exit == False:
@@ -194,8 +199,8 @@ class gamefield(QObject):
         else:
             self.__keyPressed[2] = False
     
-    def on_input(self, numPredictor: int, updateTime: float, boosterforceDeviation: float, measureDeviationX: float, measureDeviationY: float):
-        print("Gamefield->on_input: numPred: %d, time: %f, aDev: %f, measDevX: %f, measDevY: %f" % (numPredictor, updateTime, boosterforceDeviation, measureDeviationX, measureDeviationY))
+    def on_input(self, numPredictor: int, updateTime: float, boosterforceDeviation: float, measureDeviationX: float, measureDeviationY: float, mass: int, boosterforceNegX: float, boosterforcePosX: float, boosterforceNegY: float, boosterforcePosY: float):
+        #print("Gamefield->on_input: numPred: %d, time: %f, aDev: %f, measDevX: %f, measDevY: %f, mass: %d, boostNegX: %f, boostPosX: %f, boostNegY: %f, boostPosY: %f:" % (numPredictor, updateTime, boosterforceDeviation, measureDeviationX, measureDeviationY, mass, boosterforceNegX, boosterforcePosX, boosterforceNegY, boosterforcePosY))
         #print(f"Gamefield on_input: updateTime pre: {self.__updateTime}")
         self.__updateTime = updateTime
         deltaT = updateTime/numPredictor
@@ -203,6 +208,8 @@ class gamefield(QObject):
         self.__spaceship.setNPrediction(numPredictor)
         self.__spaceship.setDeltaT(deltaT)
         self.__spaceship.setBoosterforceDeviation(boosterforceDeviation)
+        self.__spaceship.setBoosterforce([[boosterforceNegX, boosterforcePosX], [boosterforceNegY, boosterforcePosY], [0, 0]])
+        self.__spaceship.setMass(mass)
         #print(f"Gamefield on_input: measureDeviation pre: {self.__measureDeviation}")
         self.__measureDeviation = [measureDeviationX, measureDeviationY, 0]
         #print(f"Gamefield on_input: measureDeviation after: {self.__measureDeviation}")

@@ -34,11 +34,11 @@ Goals for V1:
       - [x] Transmitted position
     - [ ] Boosterflame
   - [ ] "Cockpit"-Computer view with estimated values such as
-    - [ ] Input
+    - [x] Input
       - [x] Position (x/y)
       - [x] Velocity
-      - [ ] Booster force
-      - [ ] Mass
+      - [x] Booster force
+      - [x] Mass
       - [x] Number of Predictors
       - [x] Update Time
       - [x] Measure Deviance
@@ -77,8 +77,8 @@ Offer 3d Space"simulator" as own game type
 - [ ] UI
   - [ ] Add 3d Game Engine (Panda3d?)
   - [ ] Playground
-    -[ ] Add Planets
-    -[ ] Astroids
+    - [ ] Add Planets
+    - [ ] Astroids
   - [ ] Cockpit view with boardcomputer displaying estimated values such as
     - [ ] Mass/Load
     - [ ] Velocity
@@ -102,11 +102,7 @@ Add as further mode "Orrery" where you can watch movement of Plantes just like i
 
 
 - AI calculating route and auto pilot
-- expand view to a 3d box (maybe Qt 3D or OpenCV/GL) (planned for V2)
-- implement solar system and gravitational forces (planned for V2)
-- add interstellar travelling (with fast forward) (planned for V2)
-
-Sidenote: Imagine how awesome it would be, having a own created physic model of solar system and galaxy. Visualize it! Plus, you learning about interstellar physics.
+- add interstellar travelling (with fast forward)
 
 # 5. License
 

@@ -35,11 +35,19 @@ class spaceship:
         self.__velocity = velocity
 
     def setMass(self, mass):
+        #print(f"Spaceship->setMass: {mass}")
         self.__mass = mass
     
-    def setBoosterforce(self, boosterforce):
-        self._boosterforce = boosterforce
+    def getMass(self):
+        return self.__mass
 
+    def setBoosterforce(self, boosterforce):
+        #print(f"Spaceship->setBoosterforce: {boosterforce}")
+        self._boosterforce = np.array(boosterforce)
+
+    def getBoosterforce(self):
+        return self._boosterforce.tolist()
+    
     def getPositionList(self):
         return self.__position.reshape(3).tolist()
     def getPosition(self):
@@ -60,12 +68,6 @@ class spaceship:
             else:
                 a[idx, 0] = 0
         return a/self.__mass
-
-    def getMass(self):
-        return self.__mass
-
-    def getBoosterforce(self):
-        return self._boosterforce
         
     def setBoosterforceDeviation(self, var):
         #print(f"Spaceship->setAccelDevaition: accelVar pre: {self.__computer.accelVar} with variable var as: {np.sqrt(np.abs(self.__computer.accelVar))}")
