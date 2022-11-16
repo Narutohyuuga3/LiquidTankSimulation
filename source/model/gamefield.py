@@ -73,11 +73,21 @@ class gamefield(QObject):
         self.__threadCalculations = Thread(target= self.threadUpdateCalculations)
         self.__threadCalculations.start()
 
+        self.__listError = []
+        for i in range(nPredict - 1):
+            self.__listError.append(0)
+            self.__listTimepoint = i * deltaT
+        self.__listDeviation = self.__listError.copy()
+        self.__predictionAvaible = False
+        self.__threadRecorder = Thread(target= self.threadRecorder)
+        self.__threadRecorder.start()
+
     def __del__(self):
         #print("Gamefield destroyer: called!")
         self.__exit = True
         self.__threadCalculations.join()
         self.__threadSurface.join()
+        self.__threadRecorder.join()
         #print("Gamefield __del__: thread waiting done!")
 
     def threadUpdateSurface(self):
@@ -152,7 +162,56 @@ class gamefield(QObject):
             dims = self.matchDimsToInput()
             if deltaTUpdate >= self.__updateTime: # send update to spaceship. Reset timers
                 ticUpdate = time.time()
-                self.__spaceship.sendUpdate(dims, self.__measureDeviation) 
+                self.__spaceship.sendUpdate(dims, self.__measureDeviation)
+                #self.__predictionAvaible = True
+
+    def threadRecorder(self):
+        # Record current position, get estimated position to that and calculate difference.
+        # Get deviation.
+        # Get the Position in deltaT intervall.
+        # Reset Loop when prediction were created
+        # Always contain nPrediction - 1 elements
+        # Recording just N-1 points guarantees that recording
+        # starts from receiving data and ends before new data is here
+
+        listPredictedPosition = self.__listError.copy()
+        listPredictedDeviation = self.__listError.copy()
+        counter = 0
+        
+        while self.__exit == False:
+            time.sleep(0.01)
+            if self.__predictionAvaible:
+                self.__predictionAvaible = False # reset flag
+                tic = time.time()
+                counter = 0
+                listPredictedDeviation = self.__spaceship.getDeviation()
+                listPredictedPosition = self.__spaceship.getPrediction()
+
+                # update size of container
+                if len(listPredictedDeviation) - 1 != len(self.__listError):
+                    diff = len(listPredictedDeviation) - 1 - len(self.__listError) # diff > 0 -> add diff elememnts, else remove elements.
+                    if diff > 0:
+                        for i in range(diff):
+                            self.__listError.append(0)
+                            self.__listDeviation.append(0)
+                            self.__listTimepoint.append(len(self.__listTimepoint) * self.__spaceship.getDeltaT()) # calculate timepoint
+                    else:
+                        for i in range(-1*diff):
+                            self.__listError.pop()
+                            self.__listDeviation.pop()
+                            self.__listTimepoint.pop()
+
+                while counter < len(listPredictedPosition) - 1:
+                    # Add Position, when deltaT elapsed
+                    toc = time.time()
+                    if toc - tic >= self.__spaceship.getDeltaT():
+                        tic = toc
+                        self.__listError.append(self.__spaceship.getPosition() - listPredictedPosition[counter]) # get current position, calc diff and store "error"
+                        self.__listDeviation.append(listPredictedDeviation[counter])
+                        self.__listError.pop(0)
+                        self.__listDeviation.pop(0)
+                        counter+=1
+
 
     def matchDimsToInput(self):
         dims = [0, 0, 0]

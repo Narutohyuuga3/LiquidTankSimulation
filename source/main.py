@@ -1,11 +1,15 @@
+import os
 import sys
+from pathlib import Path
 
 from model.gamefield import gamefield
 from view import resources
 
 from PyQt6.QtGui import QGuiApplication
+from PyQt6.QtWidgets import QApplication
 from PyQt6.QtQml import QQmlApplicationEngine
 from PyQt6.QtCore import QTimer, QDir
+from PyQt6.QtCore import QCoreApplication, Qt, QUrl
 
 class MainWindow(QQmlApplicationEngine):
     def __init__(self, gamefield):

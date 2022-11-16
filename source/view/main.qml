@@ -1,5 +1,8 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick
+import QtQuick.Controls
+//import QtCharts
+
+
 
 ApplicationWindow {
     visible: true
@@ -306,6 +309,79 @@ ApplicationWindow {
                     }
                 }
             }
+            /*
+            Rectangle{
+                width: parent.width
+                height: parent.width
+                color: "white"
+                ChartView {
+                    title: "r_x and p_x to deviation_x"
+                    anchors.fill: parent
+                    antialiasing: true
+                    ScatterSeries{
+                        name: "errorX"
+                        XYPoint{x: 0.0; y: 1}
+                        XYPoint{x: 0.1; y: 2}
+                        XYPoint{x: 0.2; y: 3}
+                        XYPoint{x: 0.3; y: 4}
+                        XYPoint{x: 0.4; y: 5}
+                        XYPoint{x: 0.5; y: 6}
+                        XYPoint{x: 0.6; y: 7}
+                        XYPoint{x: 0.7; y: 8}
+                        XYPoint{x: 0.8; y: 9}
+                        XYPoint{x: 0.9; y: 10}
+                    }
+                    ScatterSeries{
+                        name: "deviationX"
+                        XYPoint{x: 0.0; y: 10}
+                        XYPoint{x: 0.1; y: 9}
+                        XYPoint{x: 0.2; y: 8}
+                        XYPoint{x: 0.3; y: 7}
+                        XYPoint{x: 0.4; y: 6}
+                        XYPoint{x: 0.5; y: 5}
+                        XYPoint{x: 0.6; y: 4}
+                        XYPoint{x: 0.7; y: 3}
+                        XYPoint{x: 0.8; y: 2}
+                        XYPoint{x: 0.9; y: 1}
+                    }
+                }
+            }
+            Rectangle{
+                width: parent.width
+                height: parent.width
+                color: "white"
+                ChartView {
+                    title: "r_y and p_y to deviation_y"
+                    anchors.fill: parent
+                    antialiasing: true
+                    ScatterSeries{
+                        name: "errorY"
+                        XYPoint{x: 0.0; y: 1}
+                        XYPoint{x: 0.1; y: 2}
+                        XYPoint{x: 0.2; y: 3}
+                        XYPoint{x: 0.3; y: 4}
+                        XYPoint{x: 0.4; y: 5}
+                        XYPoint{x: 0.5; y: 6}
+                        XYPoint{x: 0.6; y: 7}
+                        XYPoint{x: 0.7; y: 8}
+                        XYPoint{x: 0.8; y: 9}
+                        XYPoint{x: 0.9; y: 10}
+                    }
+                    ScatterSeries{
+                        name: "deviationY"
+                        XYPoint{x: 0.0; y: 10}
+                        XYPoint{x: 0.1; y: 9}
+                        XYPoint{x: 0.2; y: 8}
+                        XYPoint{x: 0.3; y: 7}
+                        XYPoint{x: 0.4; y: 6}
+                        XYPoint{x: 0.5; y: 5}
+                        XYPoint{x: 0.6; y: 4}
+                        XYPoint{x: 0.7; y: 3}
+                        XYPoint{x: 0.8; y: 2}
+                        XYPoint{x: 0.9; y: 1}
+                    }
+                }
+            }*/
         }
     }
 

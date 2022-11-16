@@ -47,7 +47,9 @@ Goals for V1:
       - [x] Spaceship parameters
         - [x] Position
         - [x] Velocity
-      - [ ] Graphplots with real and estimated values for:
+      - [ ] Graphplots with real and estimated values for: 
+        
+        *Sidenote: QtQuick do not provide own Plot-integration. Matplotlib just works with QtWidgets and QtCharts have some missing dependencies. Postponed to end.*
         - [ ] Difference real position (x/y) vs. estimated position (x/y) over time
         - [ ] Difference real velocity vs. estimated velocity over time
 - [ ] Kernel
