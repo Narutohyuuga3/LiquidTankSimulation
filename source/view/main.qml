@@ -6,15 +6,19 @@ import QtQuick.Controls
 
 ApplicationWindow {
     visible: true
-    width: 1580
-    height: 830
+    //width: 1580
+    //height: 830
+    
+    width: 1000
+    height: 650
+
     title: "pySpace"
 
     signal startKeyPressed(string key)
     signal stopKeyPressed(string key)
     signal sendInput(int numberPredictors, double updateTime, double boosterforceDev, double measXDev, double measYDev, int mass, double boosterforceNegX, double boosterforcePosX, double boosterforceNegY, double boosterforcePosY)
     
-    function onUpdateSpaceshipPos(pos, vel, meas) {
+    function onUpdateSpaceshipPos(pos, vel, meas, rotPos, rotVel) {
         // position
         id_spaceship.x = pos[0] - id_spaceship.width * 0.5
         id_spaceship.y = pos[1] - id_spaceship.height * 0.5
@@ -22,10 +26,13 @@ ApplicationWindow {
         id_output.itemAt(0).children[0].children[0].children[1].text = Math.round(id_spaceship.x * 100) / 100
         id_output.itemAt(1).children[0].children[0].children[1].text = Math.round(id_spaceship.y * 100) / 100
         id_output.itemAt(2).children[0].children[0].children[1].text = Math.round(vel[0] * 100) / 100
-        id_output.itemAt(3).children[0].children[0].children[1].text = Math.round(-1 * vel[1] * 100) / 100
+        id_output.itemAt(3).children[0].children[0].children[1].text = Math.round(-vel[1] * 100) / 100
+        id_output.itemAt(4).children[0].children[0].children[1].text = Math.round((360 * -rotPos[2] / (2 * Math.PI) % 360) * 100) / 100
+        id_output.itemAt(5).children[0].children[0].children[1].text = Math.round(360 * -rotVel[2] / (2 * Math.PI) * 100) / 100
         // measurment
         id_spaceshipMeasurement.x = meas[0] - id_spaceshipMeasurement.width * 0.5
         id_spaceshipMeasurement.y = meas[1] - id_spaceshipMeasurement.height * 0.5
+        id_spaceship.rotation = 360 * rotPos[2] / (2 * Math.PI) + 90
     }
 
     function onUpdateSpaceshipPrediction(prediction, predictDeviation) {
@@ -99,6 +106,24 @@ ApplicationWindow {
                 case Qt.Key_E:
                     startKeyPressed("e")
                     break
+                case Qt.Key_7:
+                    startKeyPressed("7")
+                    break
+                case Qt.Key_9:
+                    startKeyPressed("9")
+                    break
+                case Qt.Key_4:
+                    startKeyPressed("4")
+                    break
+                case Qt.Key_6:
+                    startKeyPressed("6")
+                    break
+                case Qt.Key_8:
+                    startKeyPressed("8")
+                    break
+                case Qt.Key_5:
+                    startKeyPressed("5")
+                    break
                 default:
                     break
             }
@@ -122,6 +147,24 @@ ApplicationWindow {
                     break
                 case Qt.Key_E:
                     stopKeyPressed("e")
+                    break
+                case Qt.Key_7:
+                    stopKeyPressed("7")
+                    break
+                case Qt.Key_9:
+                    stopKeyPressed("9")
+                    break
+                case Qt.Key_4:
+                    stopKeyPressed("4")
+                    break
+                case Qt.Key_6:
+                    stopKeyPressed("6")
+                    break
+                case Qt.Key_8:
+                    stopKeyPressed("8")
+                    break
+                case Qt.Key_5:
+                    stopKeyPressed("5")
                     break
                 default:
                     break
@@ -237,7 +280,7 @@ ApplicationWindow {
             
             Repeater {
                 id: id_output
-                model: 4
+                model: 6
                 Row {
                     height: 25
                     width: parent.width
@@ -267,6 +310,10 @@ ApplicationWindow {
                     itemAt(2).children[0].children[0].children[1].text = "0"
                     itemAt(3).children[0].children[0].children[0].text = "Vel Y:"
                     itemAt(3).children[0].children[0].children[1].text = "0"
+                    itemAt(4).children[0].children[0].children[0].text = "Yawn:" // häää?
+                    itemAt(4).children[0].children[0].children[1].text = 175
+                    itemAt(5).children[0].children[0].children[0].text = "Vel Yawn:"
+                    itemAt(5).children[0].children[0].children[1].text = 25
                 }
             }
             Rectangle{
@@ -427,6 +474,8 @@ ApplicationWindow {
         //source: "spaceship:spaceship.png"
         source: "icon:Spaceship/spaceship.png"
         fillMode: Image.PreserveAspectFit
+        transformOrigin: Item.Center
+        rotation: 0
     }
 
     Rectangle {

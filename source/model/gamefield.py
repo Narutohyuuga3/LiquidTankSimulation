@@ -47,7 +47,7 @@ from model.spaceship.spaceship import spaceship
 
 class gamefield(QObject):
 
-    updateSpaceshipPos = pyqtSignal(list, list, list)
+    updateSpaceshipPos = pyqtSignal(list, list, list, list, list)
     updatePrediction = pyqtSignal(list, list)
     updateInput = pyqtSignal(list)
     
@@ -57,14 +57,14 @@ class gamefield(QObject):
         velocity = [0, 0, 0]
         nPredict = 10
         deltaT = 0.1
-        boosterDev = 4_500_000 #
-        self.__spaceship = spaceship(position=position, mass=2900*1000, boosterforce=[[34_500_000, 34_500_000],[34_500_000, 34_500_000], [0, 0]], velocity=velocity, boosterforceDev= boosterDev, nPredict=nPredict, deltaT=deltaT)
+        boosterDev = 4_500_000
+        self.__spaceship = spaceship(position=position, mass=2900*1000, boosterforce=[[34_500_000, 3_450_000, 0], [3_450_000, 3_450_000, 0], [0, 0, 5000]], velocity=velocity, boosterforceDev= boosterDev, nPredict=nPredict, deltaT=deltaT)
         self.__updateTime = 1
         self.__measureDeviation = [10, 10, 0]
         
-        self.__keyPressed = False
         self.__dims = ['+', '+', '+']
-        self.__keyPressed=[False, False, False]
+        self.__dimsRot = ['+', '+', '+']
+        self.__keyPressed=[False, False, False, False, False, False]
         self.__exit = False
         
         self.__threadSurface = Thread(target= self.threadUpdateSurface)
@@ -117,7 +117,9 @@ class gamefield(QObject):
             position = self.__spaceship.getPositionList()
             velocity = self.__spaceship.getVelocityList()
             measurment = self.__spaceship.getMeasurePointList()
-            self.updateSpaceshipPos.emit(position, velocity, measurment)
+            rotPos = self.__spaceship.getRotPosList()
+            rotVel = self.__spaceship.getRotVelList()
+            self.updateSpaceshipPos.emit(position, velocity, measurment, rotPos, rotVel)
             listPosition = self.__spaceship.getPrediction()
             listDeviation = self.__spaceship.getDeviation()
             #print(f"Gamefield->updateSurface:  listPosition: {listPosition}")
@@ -134,7 +136,6 @@ class gamefield(QObject):
     
     def  threadUpdateCalculations(self):
         tic = time.time()
-        timeVector = np.array([[0.0],[0.0],[0.0]])
         deltaT = 0
         deltaTUpdate = 0
         ticUpdate = tic - self.__updateTime
@@ -143,23 +144,21 @@ class gamefield(QObject):
                 time.sleep(0.001)
 
             deltaT = time.time() - tic
-
+            dim = self.matchDimsToInput()
+            dims = dim[:3]
+            dimsRot = dim[3:]
+            #print(f'Gamefield->threadUpdateCalculations: timeVector: {timeVector}, dims: {self.__dims}, dimsRot: {self.__dimsRot}')
             if True in self.__keyPressed:
-                for idx, elem in enumerate(self.__keyPressed):
-                    if elem == True:
-                        timeVector[idx, 0] = deltaT
-                    else:
-                        timeVector[idx, 0] = 0.0
-                self.__spaceship.calcVelocity(timeVector, self.__dims)
-
-            self.__spaceship.calculatePosition(deltaT)
+                self.__spaceship.calculatePosition(deltaT, dims, dimsRot)
+            else:
+                self.__spaceship.calculatePosition(deltaT)
             tic = time.time()
 
             # check and prediction of boardcomputer
             # nPredict * stepT = Timespan
             # check time to send update
             deltaTUpdate = time.time() - ticUpdate
-            dims = self.matchDimsToInput()
+            
             if deltaTUpdate >= self.__updateTime: # send update to spaceship. Reset timers
                 ticUpdate = time.time()
                 self.__spaceship.sendUpdate(dims, self.__measureDeviation)
@@ -214,10 +213,13 @@ class gamefield(QObject):
 
 
     def matchDimsToInput(self):
-        dims = [0, 0, 0]
+        dims = [0, 0, 0, 0, 0, 0]
         for idx, elem in enumerate(self.__keyPressed):
             if elem == True:
-                dims[idx] = self.__dims[idx]
+                if idx < 3:
+                    dims[idx] = self.__dims[idx]
+                else:
+                    dims[idx] = self.__dimsRot[idx-3]
             else:
                 dims[idx] = 0
         return dims
@@ -225,38 +227,83 @@ class gamefield(QObject):
     def on_keyPressed(self, key):
         #print(f'Gamefield on_keyPressed: called {key}' )
         if key == 'w':
-            self.__keyPressed[1] = True
-            self.__dims[1] = '-'
-        elif key == 's':
-            self.__keyPressed[1] = True
-            self.__dims[1] = '+'
-        elif key == 'a':
-            self.__keyPressed[0] = True
-            self.__dims[0] = '-'
-        elif key == 'd':
             self.__keyPressed[0] = True
             self.__dims[0] = '+'
+        elif key == 's':
+            self.__keyPressed[0] = True
+            self.__dims[0] = '-'
+        elif key == 'a':
+            self.__keyPressed[1] = True
+            self.__keyPressed[5] = False
+            self.__dims[1] = '-'
+        elif key == 'd':
+            self.__keyPressed[1] = True
+            self.__keyPressed[5] = False
+            self.__dims[1] = '+'
         elif key == 'q':
             self.__keyPressed[2] = True
+            self.__keyPressed[4] = False
             self.__dims[2] = '+'
-        else:
+        elif key == 'e':
             self.__keyPressed[2] = True
+            self.__keyPressed[4] = False
             self.__dims[2] = '-'
+        elif key == '7': # roll while x-Acceleration still possible
+            self.__keyPressed[3] = True
+            self.__dimsRot[0] = '+'
+        elif key == '9':
+            self.__keyPressed[3] = True
+            self.__dimsRot[0] = '-'
+        elif key == '4': # pitch and y acceleration not possible
+            self.__keyPressed[5] = True
+            self.__keyPressed[1] = False
+            self.__dimsRot[2] = '-'
+        elif key == '6':
+            self.__keyPressed[5] = True
+            self.__keyPressed[1] = False
+            self.__dimsRot[2] = '+'
+        elif key == '8':
+            self.__keyPressed[4] = True
+            self.__keyPressed[2] = False
+            self.__dimsRot[1] = '+'
+        elif key == '5':
+            self.__keyPressed[4] = True
+            self.__keyPressed[2] = False
+            self.__dimsRot[1] = '-'
+        else:
+            pass
+        #print(f"Gamefield->on_keyPressed: keyPressed: {self.__keyPressed}, dims: {self.__dims}, dimsRot: {self.__dimsRot}")
 
     def on_keyReleased(self, key):
         #print(f'Gamefield on_keyReleased: called {key}' )
         if key == 'w':
-            self.__keyPressed[1] = False
+            self.__keyPressed[0] = False
         elif key == 's':
-            self.__keyPressed[1] = False
+            self.__keyPressed[0] = False
         elif key == 'a':
-            self.__keyPressed[0] = False
+            self.__keyPressed[1] = False
         elif key == 'd':
-            self.__keyPressed[0] = False
+            self.__keyPressed[1] = False
         elif key == 'q':
             self.__keyPressed[2] = False
-        else:
+        elif key == 'e':
             self.__keyPressed[2] = False
+        elif key == '7':
+            self.__keyPressed[3] = False
+        elif key == '9':
+            self.__keyPressed[3] = False
+        elif key == '4':
+            self.__keyPressed[5] = False
+        elif key == '6':
+            self.__keyPressed[5] = False
+        elif key == '8':
+            self.__keyPressed[4] = False
+        elif key == '5':
+            self.__keyPressed[4] = False
+        else:
+            pass
+        #print(f"Gamefield->on_keyReleased: keyPressed: {self.__keyPressed}, dims: {self.__dims}, dimsRot: {self.__dimsRot}")
+
     
     def on_input(self, numPredictor: int, updateTime: float, boosterforceDeviation: float, measureDeviationX: float, measureDeviationY: float, mass: int, boosterforceNegX: float, boosterforcePosX: float, boosterforceNegY: float, boosterforcePosY: float):
         #print("Gamefield->on_input: numPred: %d, time: %f, aDev: %f, measDevX: %f, measDevY: %f, mass: %d, boostNegX: %f, boostPosX: %f, boostNegY: %f, boostPosY: %f:" % (numPredictor, updateTime, boosterforceDeviation, measureDeviationX, measureDeviationY, mass, boosterforceNegX, boosterforcePosX, boosterforceNegY, boosterforcePosY))

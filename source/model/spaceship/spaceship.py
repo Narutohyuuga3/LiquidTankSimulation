@@ -5,80 +5,120 @@ import random, copy
 class spaceship:
     """
     Shape of vals
-                [x]                 [v_x]
-    position =  [y] [m], velocity = [v_y] [m/s]
-                [z]                 [v_z]
+                [x]                 [v_x]                  [phi]                  [omega_r]
+    position =  [y] [m], velocity = [v_y] [m/s], rotPos = [theta] [rad], rotVel = [omega_p] [rad/s]
+                [z]                 [v_z]                  [psi]                  [omega_y]
 
-                    [(F_x), (F_-x)]
-    boosterforce =  [(F_y), (F_-y)] [N], dims = [(dim_x) (dim_y) (dim_z)] ONLY + OR -, NO VALUES!
-                    [(F_z), (t_-z)]
+                    [(F_x), (F_-x), (F_xr)]
+    boosterforce =  [(F_y), (F_-y), (F_yp)] [N], dims = [(dim_x) (dim_y) (dim_z)] ONLY + OR -, NO VALUES!
+                    [(F_z), (t_-z), (F_zy)]    dimsRot = [(roll) (pitch) (yawn)] ONLY + OR -, NO VALUES!
 
     boosterforce is absolute.
 
-    mass = [m] [kg]
+    mass = [m] [kg], diameter = [d] [m], height = [h] [m], 
     """
 
-    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], boosterforceDev: float = 10.3 ,nPredict: int = 10, deltaT:float = 0.1):
-        self._boosterforce = np.array(boosterforce) # [N]
+    def __init__(self, position: list = [0, 0, 0], mass: float = 2_900_000.0, rocketDiameter: float = 10.1, rocketHeigth: float = 110.6, boosterforce: list = [[34_500_000, 34_500, 800], [34_500, 34_500, 800], [34_500, 34_500, 800]], velocity: list = [0, 0, 0], orientation: list= [0, 0, 0], rotationVelocity: list = [0, 0, 0], boosterforceDev: float = 10.3 ,nPredict: int = 10, deltaT:float = 0.1):
+        self.__boosterforce = np.array(boosterforce) # [N]
         self.__mass = mass # [kg]
-        self.__accelDev = boosterforceDev/mass
         self.__position = np.array([[position[0]], [position[1]], [position[2]]])
         self.__velocity = np.array([[velocity[0]], [velocity[1]], [velocity[2]]])
+        self.__rotPos = np.array([[orientation[0]], [orientation[1]], [orientation[2]]])
+        self.__rotVel = np.array([[rotationVelocity[0]], [rotationVelocity[1]], [rotationVelocity[2]]])
+        self.__diameter = rocketDiameter
+        self.__height = rocketHeigth
+
+        self.__accelDev = boosterforceDev/mass
+        self.__rotAccelDev =  boosterforceDev * (self.__diameter * 0.5)/self.getMomentOfInertia()
 
         self.__computer = boardcomputer(self, nPredict, deltaT)
 
     # getter/setter
-    def setPosition(self, position):
+    def setPosition(self, position = np.zeros((3, 1))):
         self.__position = position
-
-    def setVelocity(self, velocity):
-        self.__velocity = velocity
-
-    def setMass(self, mass):
-        #print(f"Spaceship->setMass: {mass}")
-        self.__mass = mass
-    
-    def getMass(self):
-        return self.__mass
-
-    def setBoosterforce(self, boosterforce):
-        #print(f"Spaceship->setBoosterforce: {boosterforce}")
-        self._boosterforce = np.array(boosterforce)
-
-    def getBoosterforce(self):
-        return self._boosterforce.tolist()
-    
-    def getPositionList(self):
-        return self.__position.reshape(3).tolist()
     def getPosition(self):
         return self.__position
-    
-    def getVelocityList(self):
-        return self.__velocity.reshape(3).tolist()
+    def getPositionList(self):
+        return self.__position.reshape(3).tolist()
+
+    def setRotPos(self, position = np.zeros((3, 1))):
+        self.__rotPos = position
+    def getRotPos(self):
+        return self.__rotPos
+    def getRotPosList(self):
+        return self.__rotPos.reshape(3).tolist()
+
+    def setVelocity(self, velocity = np.zeros((3, 1))):
+        self.__velocity = velocity
     def getVelocity(self):
         return self.__velocity
+    def getVelocityList(self):
+        return self.__velocity.reshape(3).tolist()
+    
+    def setRotVel(self, velocity):
+        self.__rotVel = velocity
+    def getRotVel(self):
+        return self.__rotVel
+    def getRotVelList(self):
+        return self.__rotVel.reshape(3).tolist()
 
-    def getAcceleration(self, dims):
-        a = np.zeros((3, 1))
-        for idx in range(len(dims)):
-            if dims[idx] == '-': 
-                a[idx, 0] = -1*self._boosterforce[idx, 0]
-            elif dims[idx] == '+':
-                a[idx, 0] = self._boosterforce[idx, 1]
-            else:
-                a[idx, 0] = 0
-        return a/self.__mass
-        
+    def setMass(self, mass: float = 1000.0):
+        #print(f"Spaceship->setMass: {mass}")
+        self.__mass = mass    
+    def getMass(self):
+        return self.__mass
+    def getMomentOfInertia(self):
+        return 0.8*self.__mass*(self.__diameter*0.5)**2 # I = [1/2 <-> 1]*m*r**2, 1 = full body cylinder, 1/2 = outer hull cylinder
+
+    def setBoosterforce(self, boosterforce = np.ones((3, 3))):
+        #print(f"Spaceship->setBoosterforce: {boosterforce}")
+        self.__boosterforce = np.array(boosterforce)
+    def getBoosterforce(self):
+        return self.__boosterforce.tolist()
+
     def setBoosterforceDeviation(self, var):
         #print(f"Spaceship->setAccelDevaition: accelVar pre: {self.__computer.accelVar} with variable var as: {np.sqrt(np.abs(self.__computer.accelVar))}")
-        self.__accelDev = var/self.__mass
+        self.__accelDev = var/self.__mass # convert Force to acceleration
+        self.__rotAccelDev =  var * (self.__diameter * 0.5)/self.getMomentOfInertia()
         #print(f"Spaceship->setAccelVariance: accelVar after: {self.__computer.accelVar} with variable var as: {var}")
     def getBoosterforceDeviation(self):
-        return self.__accelDev*self.__mass
+        return self.__accelDev*self.__mass # convert acceleration to force
+    
+    def getAcceleration(self, dims = None):
+        a = np.zeros((3, 1))
+        if dims == None:
+            return a
+        #print(f'Spaceship->getAcceleration: dims: {dims}')
+        for idx in range(len(dims)):
+            if dims[idx] == '-': 
+                a[idx, 0] = -1*self.__boosterforce[idx, 1]
+            elif dims[idx] == '+':
+                a[idx, 0] = self.__boosterforce[idx, 0]
+            else:
+                a[idx, 0] = 0
+        # convert force to acceleration
+        #print(f'Spaceship->getAcceleration: a: {a}')
+        return a/self.__mass # F/m = a 
+    def getRotAcceleration(self, dims = None):
+        a = np.zeros((3, 1))
+        if dims == None:
+            return a
+        for idx in range(len(dims)):
+            if dims[idx] == '-': 
+                a[idx, 0] = -1*self.__boosterforce[idx, 2]
+            elif dims[idx] == '+':
+                a[idx, 0] = self.__boosterforce[idx, 2]
+            else:
+                a[idx, 0] = 0
+            # convert force to rotational acceleration, dependen from dimension
+            if idx == 0: # dim x -> roll
+               a[idx, 0] = a[idx, 0] * (self.__diameter * 0.5)/ self.getMomentOfInertia() # F * r/I = M/I = alpha
+            else: # dim y/z -> pitch/yawn
+                a[idx, 0] = a[idx, 0] * (self.__height * 0.5 * 0.8)/ self.getMomentOfInertia() # F * r/I = M/I = alpha
+        return a 
 
     def setDeltaT(self, var):
         self.__computer.deltaT = var
-
     def getDeltaT(self):
         return self.__computer.deltaT
     
@@ -87,7 +127,6 @@ class spaceship:
         #print(f"Spaceship->setNPrediction: nPrediction pre: {self.__computer.nPrediction}")
         self.__computer.nPrediction = val
         #print(f"Spaceship->setNPrediction: nPrediction after: {self.__computer.nPrediction}")
-
     def getNPrediction(self):
         return self.__computer.nPrediction
 
@@ -98,13 +137,13 @@ class spaceship:
 
     def getPrediction(self):
         return self.__computer.predictVal
-    
     def getDeviation(self):
         return self.__computer.sigma
 
     # calculating methods
-    def calcVelocity(self, time, dim):
+    def calcVelocity(self, time, dim, dimRot):
         a = self.getAcceleration(dim)
+        alpha = self.getRotAcceleration(dimRot)
         # add deviation on it
         for idx, elem in enumerate(a):
             a[idx] = random.gauss(elem, self.__accelDev)
@@ -116,9 +155,24 @@ class spaceship:
         #print('Spaceship->calcVelocity: x=%f.1, y=%f.1, z=%f.1' %(self.__velocity[0,0], self.__velocity[1,0], self.__velocity[2,0]))
         return self.__velocity
 
-    def calculatePosition(self, time):
-        self.__position = kinematic.velocity2position(self.__velocity, time, self.__position)
-        #print('Spaceship calculatePosition: x=%f.1, y=%f.1, z=%f.1' %(self.__position[0,0],self.__position[1,0],self.__position[2,0]))
+    def calculatePosition(self, time, dim = None, dimRot = None):
+        a = self.getAcceleration(dim)
+        alpha = self.getRotAcceleration(dimRot)
+        #print(f'Spaceship->calculatePosition: time: {time}, timeNorm: {timeNorm}, timeRot: {timeRot}')
+        for idx, elem in enumerate(a):
+            #a[idx] = random.gauss(elem, self.__accelDev)
+            #a[idx] = np.random.normal(elem, self.__boosterforceDev)
+            pass
+        #self.__position = kinematic.velocity2position(self.__velocity, time, self.__position)
+        #print(f'Spaceship->calculatePosition: time: {time}, velocity: {self.__velocity}, position: {self.__position}')
+        #self.__position = kinematic.acceleration2position(a, time, self.__velocity, self.__position)
+        self.__position = kinematic.acceleration2positionWBodyAngle(a, alpha, time, time, self.__velocity, self.__position, self.__rotPos, self.__rotVel)
+        # update velocity, rotVel and rotPos, 
+        self.__rotPos = kinematic.rotAcceleration2rotPos(alpha, time, self.__rotVel, self.__rotPos)
+        self.__velocity = kinematic.acceleration2velocityWBodyAngle(a, alpha, time, time, self.__velocity, self.__rotPos, self.__rotVel)
+        self.__rotVel = kinematic.rotAcceleration2rotVelocity(alpha, time, self.__rotVel)
+        #print('Spaceship->calculatePosition: x=%f.1, y=%f.1, z=%f.1' %(self.__position[0,0],self.__position[1,0],self.__position[2,0]))
+        #print('Spaceship->calculatePosition: vx=%f.1, vy=%f.1, vz=%f.1' %(self.__velocity[0,0],self.__velocity[1,0],self.__velocity[2,0]))
         return self.__position
 
     def sendCompute(self, dims: list, all: bool = False):
@@ -341,7 +395,7 @@ class boardcomputer:
         # updates the time for prediction and initialize the predictionAndFill
         # decide if just a new point gets calculated or all prediction gets updated
         if self.__newStorageAvaible:
-            print("Boardcomputer->compute: update variable containers")
+            #print("Boardcomputer->compute: update variable containers")
             self.__predict = copy.deepcopy(self.__newPredict)
             self.__sigma = copy.deepcopy(self.__newSigma)
             self.__nPredict = self.__newNPredict
@@ -359,8 +413,8 @@ class boardcomputer:
 
     def predictAndFill(self, deltaT: float, a_input: np.ndarray, a_variance: float):
         # calculate the prediction and store it in the vectors
-        predictStorage = self.__predict[:]
-        sigmaStorage = self.__sigma[:]
+        predictStorage = copy.deepcopy(self.__predict[:])
+        sigmaStorage = copy.deepcopy(self.__sigma[:])
         self.predict(deltaT, a_input, a_variance)
         #print("Boardcomputer->predictAndFill: predict vector:")
         #print(self.__predict)
@@ -385,8 +439,8 @@ class boardcomputer:
         #print(self.__sigma)
         #print("return")
 
-        self.__predict = predictStorage[:]
-        self.__sigma = sigmaStorage[:]
+        self.__predict = copy.deepcopy(predictStorage[:])
+        self.__sigma = copy.deepcopy(sigmaStorage[:])
 
         
 

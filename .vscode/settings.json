@@ -2,7 +2,8 @@
     "python.testing.unittestArgs": [
         "-v",
         "-s",
-        "./source/model/spaceship/tests",
+        //"./source/model/spaceship/tests",
+        "./source/model/physics/tests",
         "-p",
         "test_*.py"
     ],

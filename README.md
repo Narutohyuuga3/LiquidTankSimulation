@@ -43,10 +43,12 @@ Goals for V1:
       - [x] Update Time
       - [x] Measure Deviance
       - [x] Boosterforce Deviance
-    - [ ] Output
+    - [x] Output
       - [x] Spaceship parameters
         - [x] Position
         - [x] Velocity
+        - [x] Angular Orientation
+        - [x] Angular Velocity
       - [ ] Graphplots with real and estimated values for: 
         
         *Sidenote: QtQuick do not provide own Plot-integration. Matplotlib just works with QtWidgets and QtCharts have some missing dependencies. Postponed to end.*
@@ -55,9 +57,11 @@ Goals for V1:
 - [ ] Kernel
   - [ ] Spaceship
     - [x] Ship
+      - [x] Control x/y/z
+      - [x] Control Roll \phi/Pitch \theta/Yawn \psi
     - [ ] Kalman filter/Boardcomputer
       - [x] Position (x/y)
-      - [ ] Orientation angle (\theta_{x,y}, \theta_{x,z}, \theta_{y,z})
+      - [ ] Orientation angle (\phi, \theta, \psi)
   - [ ] Power Ups
     - [ ] Loads
     - [ ] Booster
