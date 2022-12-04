@@ -188,6 +188,10 @@ class spaceship:
         #x = self.__position[0].item()
         #y = self.__position[1].item()
         #z = self.__position[2].item()
+        phi = self.__rotPos[0]
+        theta = self.__rotPos[1]
+        psi = self.__rotPos[2]
+
         #print("Spaceship->sendUpdate: measureDevaiation pre: ")
         #print(measureDevaition)
         l_measureVariance = measureDeviation.copy()
@@ -196,7 +200,7 @@ class spaceship:
         #print("Spaceshipe->sendUpdate: measureDevbiation to measureVariance:")
         #print(l_measureVariance)
 
-        self.__computer.update([x, y, z], l_measureVariance)
+        self.__computer.update([x, y, z, phi, theta, psi], l_measureVariance)
         #print("Spaceship->sendUpdate: dims")
         #print(dims)
         accel = self.getAcceleration(dims)
@@ -223,20 +227,23 @@ class boardcomputer:
         position = spaceship.getPosition()
         velocity = spaceship.getVelocity()
         acceleration = np.zeros((3, 1))
-        self.__x = np.bmat([[position], [velocity], [acceleration]])
+        rotPos = spaceship.getRotPos()
+        rotVel = spaceship.getRotVel()
+        rotAccel = spaceship.getRotAcceleration()
+        self.__x = np.bmat([[position], [velocity], [acceleration], [rotPos], [rotVel], [rotAccel]])
         self.__deltaT = deltaT
         self.__measurepoint = position
 
         self.__newStorageAvaible = False
 
         # Covarianz des SS
-        self.__P = np.eye(9)
+        self.__P = np.eye(18)
         
         self.__nPredict = predictPosition
         self.__newNPredict = self.__nPredict
         self.__predict = [[], [], [], [], [], [], [], [], []]
         for i in range(predictPosition):
-            for dim in range(9):
+            for dim in range(18):
                 self.__predict[dim].append(dim * predictPosition + i)
 
         self.__sigma = copy.deepcopy(self.__predict)
@@ -257,6 +264,22 @@ class boardcomputer:
     @property
     def accel(self):
         return self.__x[6:9]
+    
+    @property
+    def rotState(self):
+        return self.__X[9:18]
+
+    @property
+    def rotPos(self):
+        return self.__x[9:12]
+    
+    @property
+    def rotVel(self):
+        return self.__x[12:15]
+    
+    @property
+    def rotAccel(self):
+        return self.__x[15:18]
 
     @property
     def x(self):
@@ -321,7 +344,9 @@ class boardcomputer:
     ################################
     ### Calculation methods
 
-    def predict(self, deltaT: float, a_input: np.ndarray, aVariance) -> None:
+    def  predict(self, deltaT: float, a_input: np.ndarray, aVariance, alpha_input: np.ndarray, alphaVariance) -> None:
+        # Model is nonlinear. Extend it to unscented kalman filter!
+
         # inspired by CppMonk
         # x = F * x + G * u
         # P = F * P * F_t + G * G_t * a
@@ -333,37 +358,65 @@ class boardcomputer:
         #print(f"Boardcomputer->predict: Variance of aceleration: {aVariance}")
         #print(f"Boardcomputer->predict: Input of aceleration: {a_input}")
         
-        F=np.bmat([[np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3))],
-                   [np.zeros((3, 3)), np.eye(3), np.zeros((3, 3))],
+        F=np.bmat([[       np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))],
+                   [np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))],
+                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))],
+                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)),   np.eye((3, 3)), np.eye(3)*deltaT, np.zeros((3, 3))],
+                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3))],
+                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))]])
+
+        G = np.bmat([[0.5*np.eye(3)*deltaT**2,        np.zeros((3, 3))],
+                     [       np.eye(3)*deltaT,        np.zeros((3, 3))],
+                     [              np.eye(3),        np.zeros((3, 3))],
+                     [       np.zeros((3, 3)), 0.5*np.eye(3)*deltaT**2],
+                     [       np.zeros((3, 3)),        np.eye(3)*deltaT],
+                     [       np.zeros((3, 3)),               np.eye(3)]])
+
+        F_ = np.bmat([[    np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3))],
+                   [np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3))]
                    [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))]])
+        G_ = np.bmat([[0.5*np.eye(3)*deltaT**2],
+                      [np.eye(3)*deltaT],
+                      [np.eye(3)]])
 
-        G = np.bmat([[0.5*np.eye(3)*deltaT**2],
-                     [np.eye(3)*deltaT],
-                     [np.eye(3)]])
-                     
-        new_x = F.dot(self.__x) + G.dot(a_input)
+        Xrot = F_.dot(self.rotState()) + G_.dot(alpha_input)
 
-        new_P = F.dot(self.__P).dot(F.T) + G.dot(G.T) * aVariance
+        a_mod = kinematic.bodyFrame2spaceFrame(Xrot).dot(a_input)
+
+        a = np.bmat([[a_mod],
+                     [alpha_input]])
+
+        new_x = F.dot(self.__x) + G.dot(a)
+
+        new_P = F.dot(self.__P).dot(F.T) + G.dot(G.T)*aVariance
 
         self.__x = new_x
         self.__P = new_P
 
-    def update(self, measPos: list, measVar: list):
+    def update(self, measPos: list, measVar: list, measRotPos: list, measRotVar: list):
+        # Model is nonlinear. Extend it to unscented kalman filter
+
         # inspired by CppMonk
         # y = z - H * x
         # S = H * P * H_t
         # K = P * H_t * S_-1
         # x = x + K * y
         # P = (I - K * H) * P
-        R = np.array([[measVar[0], 0, 0],
-                      [0, measVar[1], 0],
-                      [0, 0, measVar[2]]])
+        R = np.array([[   measVar[0], 0, 0, 0, 0, 0],
+                      [0,    measVar[1], 0, 0, 0, 0],
+                      [0, 0,    measVar[2], 0, 0, 0]
+                      [0, 0, 0, measRotVar[0], 0, 0],
+                      [0, 0, 0, 0, measRotVar[1], 0],
+                      [0, 0, 0, 0, 0, measRotVar[2]]])
 
-        self.__measurepoint = np.array([[measPos[0]],
-                      [measPos[1]],
-                      [measPos[2]]])
+        self.__measurepoint = np.array([[   measPos[0]],
+                                        [   measPos[1]],
+                                        [   measPos[2]],
+                                        [measRotPos[0]],
+                                        [measRotPos[1]],
+                                        [measRotPos[2]]])
 
-        H = np.bmat([np.eye(3), np.zeros((3, 3)), np.zeros((3, 3))])
+        H = np.bmat([np.eye(6), np.zeros((6, 6)), np.zeros((6, 6))])
 
         #print("Boardcomputer->update: H:")
         #print(H)
@@ -420,7 +473,7 @@ class boardcomputer:
         #print(self.__predict)
         #print("Boardcomputer->predictAndFill: sigma vector:")
         #print(self.__sigma)
-        for dim in range(9): # 0:x, 1:y, 2:z 3:vx, 4:vy, 5:vz, 6:ax, 7:ay, 8:az
+        for dim in range(18): # 0:x, 1:y, 2:z 3:vx, 4:vy, 5:vz, 6:ax, 7:ay, 8:az 9:phi, 10:theta, 11:psi 12:wr, 13:wp, 14:wy, 15:alphar, 16:alphap, 17:alphay
             #print(dim)
             #print(self.__x[dim, 0].item())
             #print(self.__predict[dim])
