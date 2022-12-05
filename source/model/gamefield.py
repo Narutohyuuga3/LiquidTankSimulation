@@ -61,6 +61,7 @@ class gamefield(QObject):
         self.__spaceship = spaceship(position=position, mass=2900*1000, boosterforce=[[34_500_000, 3_450_000, 0], [3_450_000, 3_450_000, 0], [0, 0, 10000]], velocity=velocity, boosterforceDev= boosterDev, nPredict=nPredict, deltaT=deltaT)
         self.__updateTime = 1
         self.__measureDeviation = [10, 10, 0]
+        self.__rotMeasureDeviation = [0.1, 0.1, 0]
         
         self.__dims = ['+', '+', '+']
         self.__dimsRot = ['+', '+', '+']
@@ -161,7 +162,7 @@ class gamefield(QObject):
             
             if deltaTUpdate >= self.__updateTime: # send update to spaceship. Reset timers
                 ticUpdate = time.time()
-                self.__spaceship.sendUpdate(dims, self.__measureDeviation)
+                self.__spaceship.sendUpdate(dims, dimsRot, self.__measureDeviation, self.__rotMeasureDeviation)
                 #self.__predictionAvaible = True
 
     def threadRecorder(self):
@@ -318,6 +319,7 @@ class gamefield(QObject):
         self.__spaceship.setMass(mass)
         #print(f"Gamefield on_input: measureDeviation pre: {self.__measureDeviation}")
         self.__measureDeviation = [measureDeviationX, measureDeviationY, 0]
+        self.__rotMeasureDeviation = [0.1, 0.1, 0]
         #print(f"Gamefield on_input: measureDeviation after: {self.__measureDeviation}")
 
 if __name__ == '__main__':

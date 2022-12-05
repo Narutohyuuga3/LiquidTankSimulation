@@ -133,7 +133,7 @@ class spaceship:
     def getMeasurePoint(self):
         return self.__computer.measurePoint
     def getMeasurePointList(self):
-        return self.__computer.measurePoint.reshape(3).tolist()
+        return self.__computer.measurePoint.reshape(6).tolist()
 
     def getPrediction(self):
         return self.__computer.predictVal
@@ -178,19 +178,20 @@ class spaceship:
     def sendCompute(self, dims: list, all: bool = False):
         self.__computer.compute(dims, all)
 
-    def sendUpdate(self, dims: list, measureDeviation: list = [40, 40, 0]):
-        x = random.gauss(self.__position[0].item(), measureDeviation[0])
-        y = random.gauss(self.__position[1].item(), measureDeviation[1])
-        z = random.gauss(self.__position[2].item(), measureDeviation[2])
+    def sendUpdate(self, dims: list, dimsRot: list, measureDeviation: list = [40, 40, 0], rotMeasureDeviation: list = [0.1, 0.1, 0]):
+        x = random.gauss(self.__position[0, 0].item(), measureDeviation[0])
+        y = random.gauss(self.__position[1, 0].item(), measureDeviation[1])
+        z = random.gauss(self.__position[2, 0].item(), measureDeviation[2])
         #x = np.random.normal(self.__position[0].item(), measureDeviation[0])
         #y = np.random.normal(self.__position[1].item(), measureDeviation[1])
         #z = np.random.normal(self.__position[2].item(), measureDeviation[2])
         #x = self.__position[0].item()
         #y = self.__position[1].item()
         #z = self.__position[2].item()
-        phi = self.__rotPos[0]
-        theta = self.__rotPos[1]
-        psi = self.__rotPos[2]
+
+        phi = self.__rotPos[0, 0]
+        theta = self.__rotPos[1, 0]
+        psi = self.__rotPos[2, 0]
 
         #print("Spaceship->sendUpdate: measureDevaiation pre: ")
         #print(measureDevaition)
@@ -199,15 +200,21 @@ class spaceship:
             l_measureVariance[index] = elem**2
         #print("Spaceshipe->sendUpdate: measureDevbiation to measureVariance:")
         #print(l_measureVariance)
+        l_rotMeasureVariance = rotMeasureDeviation.copy()
+        for index, elem in enumerate(l_rotMeasureVariance):
+            l_rotMeasureVariance[index] = elem**2
 
-        self.__computer.update([x, y, z, phi, theta, psi], l_measureVariance)
+        self.__computer.update([x, y, z], l_measureVariance, [phi, theta, psi], l_rotMeasureVariance)
         #print("Spaceship->sendUpdate: dims")
         #print(dims)
         accel = self.getAcceleration(dims)
         #print(f"Spaceship->sendUpdate: accel: {accel}")
         accelVar = (self.__accelDev)**2
         #print(f"Spaceship->sendUpdate: accelVar: {accelVar}")
-        self.__computer.compute(accelVar= accelVar, accel = accel, all = True)
+
+        rotAccel = self.getRotAcceleration(dimsRot)
+        rotAccelVar = (self.__rotAccelDev)**2
+        self.__computer.compute(accelVar= accelVar, accel = accel, rotAccelVar = rotAccelVar, rotAccel = rotAccel, all = True)
 
 
 class boardcomputer:
@@ -241,7 +248,7 @@ class boardcomputer:
         
         self.__nPredict = predictPosition
         self.__newNPredict = self.__nPredict
-        self.__predict = [[], [], [], [], [], [], [], [], []]
+        self.__predict = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []]
         for i in range(predictPosition):
             for dim in range(18):
                 self.__predict[dim].append(dim * predictPosition + i)
@@ -267,7 +274,7 @@ class boardcomputer:
     
     @property
     def rotState(self):
-        return self.__X[9:18]
+        return self.__x[9:18]
 
     @property
     def rotPos(self):
@@ -361,7 +368,7 @@ class boardcomputer:
         F=np.bmat([[       np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))],
                    [np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))],
                    [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))],
-                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)),   np.eye((3, 3)), np.eye(3)*deltaT, np.zeros((3, 3))],
+                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)),      np.eye((3)), np.eye(3)*deltaT, np.zeros((3, 3))],
                    [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3))],
                    [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))]])
 
@@ -372,16 +379,16 @@ class boardcomputer:
                      [       np.zeros((3, 3)),        np.eye(3)*deltaT],
                      [       np.zeros((3, 3)),               np.eye(3)]])
 
-        F_ = np.bmat([[    np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3))],
-                   [np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3))]
-                   [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))]])
+        F_ = np.bmat([[       np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3))],
+                      [np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3))],
+                      [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))]])
         G_ = np.bmat([[0.5*np.eye(3)*deltaT**2],
                       [np.eye(3)*deltaT],
                       [np.eye(3)]])
 
-        Xrot = F_.dot(self.rotState()) + G_.dot(alpha_input)
+        Xrot = F_.dot(self.rotState) + G_.dot(alpha_input)
 
-        a_mod = kinematic.bodyFrame2spaceFrame(Xrot).dot(a_input)
+        a_mod = kinematic.bodyFrame2spaceFrame(Xrot[0:3]).dot(a_input)
 
         a = np.bmat([[a_mod],
                      [alpha_input]])
@@ -404,7 +411,7 @@ class boardcomputer:
         # P = (I - K * H) * P
         R = np.array([[   measVar[0], 0, 0, 0, 0, 0],
                       [0,    measVar[1], 0, 0, 0, 0],
-                      [0, 0,    measVar[2], 0, 0, 0]
+                      [0, 0,    measVar[2], 0, 0, 0],
                       [0, 0, 0, measRotVar[0], 0, 0],
                       [0, 0, 0, 0, measRotVar[1], 0],
                       [0, 0, 0, 0, 0, measRotVar[2]]])
@@ -430,7 +437,7 @@ class boardcomputer:
         #print(f"Boardcomputer->update: shape of P: {np.shape(self.__P)}, shape of H: {np.shape(H)}, shape of S: {np.shape(S)}")
         K = self.__P.dot(H.T).dot(np.linalg.inv(S))
         new_x = self.__x + K.dot(y)
-        new_P = (np.eye(9)-K.dot(H)).dot(self.__P)
+        new_P = (np.eye(18)-K.dot(H)).dot(self.__P)
 
         self.__x = new_x
         self.__P = new_P
@@ -444,7 +451,7 @@ class boardcomputer:
         # also credits to https://www.kalmanfilter.net/default.aspx for helping to develop the model
         # and providing the sources to learn the concepts of the kalman filters
 
-    def compute(self, accelVar: float, accel: np.ndarray = None, all: bool = False):
+    def compute(self, accelVar: float, accel: np.ndarray = None, rotAccelVar: float = 0.1, rotAccel: np.ndarray = None, all: bool = False):
         # updates the time for prediction and initialize the predictionAndFill
         # decide if just a new point gets calculated or all prediction gets updated
         if self.__newStorageAvaible:
@@ -456,19 +463,19 @@ class boardcomputer:
 
         if all == False: # calculate just next one position
             #print("Boardcomputer->compute: deltaT: %f0.1" % (self.__deltaT))
-            self.predictAndFill(self.__deltaT, accel, accelVar)
+            self.predictAndFill(self.__deltaT, accel, accelVar, rotAccel, rotAccelVar)
 
         else: # update all predictions and its cetrainty
             for k in range(self.__nPredict):
                 #print("Boardcomputer->compute: deltaT: %f0.1 in %d iter" % (self.__deltaT, k))
-                self.predictAndFill(self.__deltaT, accel, accelVar)
+                self.predictAndFill(self.__deltaT, accel, accelVar, rotAccel, rotAccelVar)
         #print("Boardcomputer->compute: return")
 
-    def predictAndFill(self, deltaT: float, a_input: np.ndarray, a_variance: float):
+    def predictAndFill(self, deltaT: float, a_input: np.ndarray, a_variance: float, aRot_input: np.ndarray, aRot_variance: float):
         # calculate the prediction and store it in the vectors
         predictStorage = copy.deepcopy(self.__predict[:])
         sigmaStorage = copy.deepcopy(self.__sigma[:])
-        self.predict(deltaT, a_input, a_variance)
+        self.predict(deltaT, a_input, a_variance, aRot_input, aRot_variance)
         #print("Boardcomputer->predictAndFill: predict vector:")
         #print(self.__predict)
         #print("Boardcomputer->predictAndFill: sigma vector:")
