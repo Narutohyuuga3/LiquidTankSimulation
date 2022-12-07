@@ -59,8 +59,8 @@ class gamefield(QObject):
         deltaT = 0.1
         boosterDev = 4_500_000
         self.__spaceship = spaceship(position=position, mass=2900*1000, boosterforce=[[34_500_000, 3_450_000, 0], [3_450_000, 3_450_000, 0], [0, 0, 10000]], velocity=velocity, boosterforceDev= boosterDev, nPredict=nPredict, deltaT=deltaT)
-        self.__updateTime = 1
-        self.__measureDeviation = [10, 10, 0]
+        self.__updateTime = 2.5
+        self.__measureDeviation = [1, 1, 0]
         self.__rotMeasureDeviation = [0.1, 0.1, 0]
         
         self.__dims = ['+', '+', '+']

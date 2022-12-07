@@ -73,49 +73,50 @@ class kinematic():
         cosPsi = np.cos(psi)
 
         conv = np.zeros((3, 3))
-        Rx = np.zeros((3, 3))
-        Ry = np.zeros((3, 3))
-        Rz = np.zeros((3, 3))
+        
+        #Rx = np.zeros((3, 3))
+        #Ry = np.zeros((3, 3))
+        #Rz = np.zeros((3, 3))
+        #Rz[0, 0] = cosPsi
+        #Rz[0, 1] = -sinPsi
+        #Rz[0, 2] = 0
+        #Rz[1, 0] = sinPsi
+        #Rz[1, 1] = cosPsi
+        #Rz[1, 2] = 0
+        #Rz[2, 0] = 0
+        #Rz[2, 1] = 0
+        #Rz[2, 2] = 1
+        #Ry[0, 0] = cosTheta
+        #Ry[0, 1] = 0
+        #Ry[0, 2] = sinTheta
+        #Ry[1, 0] = 0
+        #Ry[1, 1] = 1
+        #Ry[1, 2] = 0
+        #Ry[2, 0] = -sinTheta
+        #Ry[2, 1] = 0
+        #Ry[2, 2] = cosTheta
+        #Rx[0, 0] = 1
+        #Rx[0, 1] = 0
+        #Rx[0, 2] = 0
+        #Rx[1, 0] = 0
+        #Rx[1, 1] = cosPhi
+        #Rx[1, 2] = -sinPhi
+        #Rx[2, 0] = 0
+        #Rx[2, 1] = sinPhi
+        #Rx[2, 2] = cosPhi
+        #conv = Rz.dot(Ry.dot(Rx))
 
-        Rz[0, 0] = cosPsi
-        Rz[0, 1] = -sinPsi
-        Rz[0, 2] = 0
-        Rz[1, 0] = sinPsi
-        Rz[1, 1] = cosPsi
-        Rz[1, 2] = 0
-        Rz[2, 0] = 0
-        Rz[2, 1] = 0
-        Rz[2, 2] = 1
-        Ry[0, 0] = cosTheta
-        Ry[0, 1] = 0
-        Ry[0, 2] = sinTheta
-        Ry[1, 0] = 0
-        Ry[1, 1] = 1
-        Ry[1, 2] = 0
-        Ry[2, 0] = -sinTheta
-        Ry[2, 1] = 0
-        Ry[2, 2] = cosTheta
-        Rx[0, 0] = 1
-        Rx[0, 1] = 0
-        Rx[0, 2] = 0
-        Rx[1, 0] = 0
-        Rx[1, 1] = cosPhi
-        Rx[1, 2] = -sinPhi
-        Rx[2, 0] = 0
-        Rx[2, 1] = sinPhi
-        Rx[2, 2] = cosPhi
-        conv = Rz.dot(Ry.dot(Rx))
-        #conv[0, 0] = cosTheta*cosPsi
-        #conv[0, 1] = sinPhi*sinTheta*cosPsi-cosPhi*sinPsi
-        #conv[0, 2] = cosPhi*sinTheta*cosPsi+sinPhi*sinPsi
-        #
-        #conv[1, 0] = cosTheta*sinPsi
-        #conv[1, 1] = sinPhi*sinTheta*sinPsi+cosPhi*cosPsi
-        #conv[1, 2] = cosPhi*sinTheta*sinPsi-sinPhi*cosPsi
-#
-        #conv[2, 0] = -sinTheta
-        #conv[2, 1] = sinPhi*cosTheta
-        #conv[2, 2] = cosPhi*cosTheta
+        conv[0, 0] = cosTheta*cosPsi
+        conv[0, 1] = sinPhi*sinTheta*cosPsi-cosPhi*sinPsi
+        conv[0, 2] = cosPhi*sinTheta*cosPsi+sinPhi*sinPsi
+        
+        conv[1, 0] = cosTheta*sinPsi
+        conv[1, 1] = sinPhi*sinTheta*sinPsi+cosPhi*cosPsi
+        conv[1, 2] = cosPhi*sinTheta*sinPsi-sinPhi*cosPsi
+
+        conv[2, 0] = -sinTheta
+        conv[2, 1] = sinPhi*cosTheta
+        conv[2, 2] = cosPhi*cosTheta
 
         return conv
 
@@ -137,50 +138,50 @@ class kinematic():
         cosPsi = np.cos(psi)
 
         conv = np.zeros((3, 3))
-        Rx = np.zeros((3, 3))
-        Ry = np.zeros((3, 3))
-        Rz = np.zeros((3, 3))
+        
+        #Rx = np.zeros((3, 3))
+        #Ry = np.zeros((3, 3))
+        #Rz = np.zeros((3, 3))
+        #Rx[0, 0] = 1
+        #Rx[0, 1] = 0
+        #Rx[0, 2] = 0
+        #Rx[1, 0] = 0
+        #Rx[1, 1] = cosPhi
+        #Rx[1, 2] = sinPhi
+        #Rx[2, 0] = 0
+        #Rx[2, 1] = -sinPhi
+        #Rx[2, 2] = cosPhi
+        #Ry[0, 0] = cosTheta
+        #Ry[0, 1] = 0
+        #Ry[0, 2] = -sinTheta
+        #Ry[1, 0] = 0
+        #Ry[1, 1] = 1
+        #Ry[1, 2] = 0
+        #Ry[2, 0] = sinTheta
+        #Ry[2, 1] = 0
+        #Ry[2, 2] = cosTheta
+        #Rz[0, 0] = cosPsi
+        #Rz[0, 1] = sinPsi
+        #Rz[0, 2] = 0
+        #Rz[1, 0] = -sinPsi
+        #Rz[1, 1] = cosPsi
+        #Rz[1, 2] = 0
+        #Rz[2, 0] = 0
+        #Rz[2, 1] = 0
+        #Rz[2, 2] = 1
+        #conv = Rx.dot(Ry.dot(Rz))
 
-        Rx[0, 0] = 1
-        Rx[0, 1] = 0
-        Rx[0, 2] = 0
-        Rx[1, 0] = 0
-        Rx[1, 1] = cosPhi
-        Rx[1, 2] = sinPhi
-        Rx[2, 0] = 0
-        Rx[2, 1] = -sinPhi
-        Rx[2, 2] = cosPhi
-        Ry[0, 0] = cosTheta
-        Ry[0, 1] = 0
-        Ry[0, 2] = -sinTheta
-        Ry[1, 0] = 0
-        Ry[1, 1] = 1
-        Ry[1, 2] = 0
-        Ry[2, 0] = sinTheta
-        Ry[2, 1] = 0
-        Ry[2, 2] = cosTheta
-        Rz[0, 0] = cosPsi
-        Rz[0, 1] = sinPsi
-        Rz[0, 2] = 0
-        Rz[1, 0] = -sinPsi
-        Rz[1, 1] = cosPsi
-        Rz[1, 2] = 0
-        Rz[2, 0] = 0
-        Rz[2, 1] = 0
-        Rz[2, 2] = 1
-        conv = Rx.dot(Ry.dot(Rz))
+        conv[0, 0] = cosTheta*cosPsi
+        conv[0, 1] = cosTheta*sinPsi
+        conv[0, 2] = -sinTheta
 
-        #conv[0, 0] = cosTheta*cosPsi
-        #conv[0, 1] = cosTheta*sinPsi
-        #conv[0, 2] = -sinTheta
-#
-        #conv[1, 0] = sinPhi*sinTheta*cosPsi-cosPhi*sinPsi
-        #conv[1, 1] = sinPhi*sinTheta*sinPsi+cosPhi*cosPsi
-        #conv[1, 2] = sinPhi*cosTheta
-#
-        #conv[2, 0] = cosPhi*sinTheta*cosPsi+sinPhi*sinPsi
-        #conv[2, 1] = cosPhi*sinTheta*sinPsi-sinPhi*cosPsi
-        #conv[2, 2] = cosPhi*cosTheta
+        conv[1, 0] = sinPhi*sinTheta*cosPsi-cosPhi*sinPsi
+        conv[1, 1] = sinPhi*sinTheta*sinPsi+cosPhi*cosPsi
+        conv[1, 2] = sinPhi*cosTheta
+
+        conv[2, 0] = cosPhi*sinTheta*cosPsi+sinPhi*sinPsi
+        conv[2, 1] = cosPhi*sinTheta*sinPsi-sinPhi*cosPsi
+        conv[2, 2] = cosPhi*cosTheta
 
         return conv
 

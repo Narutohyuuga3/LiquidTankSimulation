@@ -21,10 +21,10 @@ class spaceship:
     def __init__(self, position: list = [0, 0, 0], mass: float = 2_900_000.0, rocketDiameter: float = 10.1, rocketHeigth: float = 110.6, boosterforce: list = [[34_500_000, 34_500, 800], [34_500, 34_500, 800], [34_500, 34_500, 800]], velocity: list = [0, 0, 0], orientation: list= [0, 0, 0], rotationVelocity: list = [0, 0, 0], boosterforceDev: float = 10.3 ,nPredict: int = 10, deltaT:float = 0.1):
         self.__boosterforce = np.array(boosterforce) # [N]
         self.__mass = mass # [kg]
-        self.__position = np.array([[position[0]], [position[1]], [position[2]]])
-        self.__velocity = np.array([[velocity[0]], [velocity[1]], [velocity[2]]])
-        self.__rotPos = np.array([[orientation[0]], [orientation[1]], [orientation[2]]])
-        self.__rotVel = np.array([[rotationVelocity[0]], [rotationVelocity[1]], [rotationVelocity[2]]])
+        self.__position = np.array([[position[0]], [position[1]], [position[2]]]).reshape((3, 1))
+        self.__velocity = np.array([[velocity[0]], [velocity[1]], [velocity[2]]]).reshape((3, 1))
+        self.__rotPos = np.array([[orientation[0]], [orientation[1]], [orientation[2]]]).reshape((3, 1))
+        self.__rotVel = np.array([[rotationVelocity[0]], [rotationVelocity[1]], [rotationVelocity[2]]]).reshape(3, 1)
         self.__diameter = rocketDiameter
         self.__height = rocketHeigth
 
@@ -140,6 +140,9 @@ class spaceship:
     def getDeviation(self):
         return self.__computer.sigma
 
+    def getComputer(self):
+        return self.__computer
+
     # calculating methods
     def calcVelocity(self, time, dim, dimRot):
         a = self.getAcceleration(dim)
@@ -179,15 +182,15 @@ class spaceship:
         self.__computer.compute(dims, all)
 
     def sendUpdate(self, dims: list, dimsRot: list, measureDeviation: list = [40, 40, 0], rotMeasureDeviation: list = [0.1, 0.1, 0]):
-        x = random.gauss(self.__position[0, 0].item(), measureDeviation[0])
-        y = random.gauss(self.__position[1, 0].item(), measureDeviation[1])
-        z = random.gauss(self.__position[2, 0].item(), measureDeviation[2])
+        #x = random.gauss(self.__position[0, 0].item(), measureDeviation[0])
+        #y = random.gauss(self.__position[1, 0].item(), measureDeviation[1])
+        #z = random.gauss(self.__position[2, 0].item(), measureDeviation[2])
         #x = np.random.normal(self.__position[0].item(), measureDeviation[0])
         #y = np.random.normal(self.__position[1].item(), measureDeviation[1])
         #z = np.random.normal(self.__position[2].item(), measureDeviation[2])
-        #x = self.__position[0].item()
-        #y = self.__position[1].item()
-        #z = self.__position[2].item()
+        x = self.__position[0, 0].item()
+        y = self.__position[1, 0].item()
+        z = self.__position[2, 0].item()
 
         phi = self.__rotPos[0, 0]
         theta = self.__rotPos[1, 0]
@@ -207,8 +210,10 @@ class spaceship:
         self.__computer.update([x, y, z], l_measureVariance, [phi, theta, psi], l_rotMeasureVariance)
         #print("Spaceship->sendUpdate: dims")
         #print(dims)
+        
         accel = self.getAcceleration(dims)
         #print(f"Spaceship->sendUpdate: accel: {accel}")
+        
         accelVar = (self.__accelDev)**2
         #print(f"Spaceship->sendUpdate: accelVar: {accelVar}")
 
@@ -382,6 +387,7 @@ class boardcomputer:
         F_ = np.bmat([[       np.eye(3), np.eye(3)*deltaT, np.zeros((3, 3))],
                       [np.zeros((3, 3)),        np.eye(3), np.zeros((3, 3))],
                       [np.zeros((3, 3)), np.zeros((3, 3)), np.zeros((3, 3))]])
+        
         G_ = np.bmat([[0.5*np.eye(3)*deltaT**2],
                       [np.eye(3)*deltaT],
                       [np.eye(3)]])

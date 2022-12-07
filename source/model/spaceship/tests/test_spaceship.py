@@ -6,156 +6,103 @@ from source.model.physics.kinematic import kinematic
 from matplotlib import pyplot as plt
 
 class TestBoardcomputer(unittest.TestCase):
-    def test_findTest(self):
-        self.assertAlmostEqual(3, 3)
-
-    def test_can_construct_with_x_v_and_a(self):
-        x=np.array([[200],[500],[0]])
-        v=np.array([[0],[0],[0]])
-        a=np.array([[0],[0],[0]])
-        aVar = 1.2
-        bc = boardcomputer(x, v, a, a, aVar)
-        
-        pos = bc.pos
-        self.assertAlmostEqual(pos.shape, (3, 1))
-        
-        vel = bc.vel
-        self.assertAlmostEqual(vel.shape, (3, 1))
-        
-        accel = bc.accel
-        self.assertAlmostEqual(accel.shape, (3, 1))
-        
-        if not np.array_equal(pos, x):
-            return False
-        if not np.array_equal(vel, v):
-            return False
-        if not np.array_equal(accel, a):
-            return False
-
-    def test_canFindMismatchedInput(self):
-        position = np.array([[3], [2], [1]])
-        velocity = np.array([[3], [2], [1]])
-        acceleration = np.array([[3], [2], [1]])
-        accelerationVar = 1.2
-
-        try:
-            boardcomputer(position[0:2], velocity, acceleration, acceleration, accelerationVar)
-            return False
-        except TypeError as e:
-            print(e)
-            print('test_mismatchedInput: Prove for vectorsize successful!')
-
-        try:
-            boardcomputer(position, velocity, acceleration, acceleration, accelerationVar)
-            return False
-        except TypeError as e:
-            print(e)
-            print('test_mismatchedInput: Prove for missing vector successful!')
-
         
     def test_can_predict(self):
-        x=np.array([[200],[500],[0]])
-        v=np.array([[0],[0],[0]])
-        a=np.array([[0],[0],[0]])
-        a_var = 1.2
-        bc = boardcomputer(x, v, a, a, a_var)
+        x_init = [[0], [0], [0]]
+        v_init = [[0], [0], [0]]
+        a_init = [[0], [0], [0]]
 
-        self.assertEqual(bc.P.shape, (9, 9))
-        self.assertEqual(bc.x.shape, (9, 1))
-
-        bc.predict(deltaT=0.1)
-        self.assertEqual(bc.P.shape, (9, 9))
-        self.assertEqual(bc.x.shape, (9, 1))
+        xRot_init = [[0], [0], [0]]
+        vRot_init = [[0], [0], [0]]
+        aRot_init = [[0], [0], [0]]
         
-        # check if prediction matches physics
-        bc1 = boardcomputer(x, v, a, a, a_var)
-        pos_before = bc1.pos
-        vel_before = bc1.vel
-        accel_before = bc1.accel
-        print('Initial state:')
-        print('pos:')
-        print(pos_before)
-        print('compare model:')
-        print(x)
+        checkState = np.bmat([[x_init], [v_init], [a_init], [xRot_init], [vRot_init], [aRot_init]]).reshape((18, 1))
 
-        print('vel:')
-        print(vel_before)
-        print('compare model:')
-        print(v)
-
-        print('accel:')
-        print(accel_before)
-        print('compare model:')
-        print(a)
+        a_var = 0.01
+        aRot_var = 0.1
         
-        if not np.array_equal(pos_before, x):
-            return False    
-        if not np.array_equal(vel_before, v):
-            return False
-        if not np.array_equal(accel_before, a):
-            return False
-
-        for i in range(10):
-            p = bc1.P
-            det_before = np.linalg.det(p)
-            pos_before = bc1.pos
-            vel_before = bc1.vel
-            accel_before = bc1.accel
-
-            bc1.predict(0.1)
-            p = bc1.P
-            det_after = np.linalg.det(p)
-            print('===================')
-            print(f'Det before: {det_before}')
-            print(f'Det after: {det_after}')
-            self.assertGreater(det_after, det_before)
-
-            pos_after = bc1.pos
-            vel_after = bc1.vel
-            accel_after = bc1.accel
-
-            # check value by another model
-
-            x = kinematic.acceleration2position(a, 0.1, v, x)
-            v = kinematic.acceleration2velocity(a, 0.1, v)
-
-            print('-------------------')
-            print('pos:')
-            print(pos_before)
-            print('after:')
-            print(pos_after)
-            print('compare model:')
-            print(x)
-
-            print('vel:')
-            print(vel_before)
-            print('after:')
-            print(vel_after)
-            print('compare model:')
-            print(v)
-
-            print('accel:')
-            print(accel_before)
-            print('after:')
-            print(accel_after)
-            print('compare model:')
-            print(a)
-            
-            p_after = bc1.P
-            print('uncertainty X: +/-%f.1' % (np.sqrt(p_after[0, 0])))
-            print('uncertainty Y: +/-%f.1' % (np.sqrt(p_after[1, 1])))
-            print('uncertainty velX: +/-%f.1' % (np.sqrt(p_after[3, 3])))
-            print('uncertainty velY: +/-%f.1' % (np.sqrt(p_after[4, 4])))
-            
+        mass=1
+        diameter=1
+        heigth = 1
+        boosterforce = np.array([[1, 1, 1],[1, 1, 1], [1, 1, 1]])
         
-        if not np.array_equal(pos_after, x):
-            return False    
-        if not np.array_equal(vel_after, v):
-            return False
-        if not np.array_equal(accel_after, a):
-            return False
+        m_spaceship = spaceship(x_init, mass, diameter, heigth, boosterforce, v_init, xRot_init, vRot_init, a_var)
+        m_computer = m_spaceship.getComputer()
+
+        deltaT = 0.01
+        n = 5000
+        a_input = np.array([[1], [0], [0]]).reshape((3, 1))
+        aRot_input = np.array([[0], [0], [0]]).reshape((3, 1))
+        
+        stateList = []
+        checkStateList = []
+        newState = checkState
+
+        stateList.append(m_computer.x)
+        checkStateList.append(newState)
+
+        for i in range(n):
+            #if  i == 5:
+            #    a_input = np.array([[0], [0], [0]]).reshape((3, 1))
+            #elif i > 6:
+            #    a_input = np.array([[2], [4], [8]]).reshape((3, 1))
+
+            if i == 0:
+                aRot_input = np.array([[0], [5*np.pi], [0]]).reshape((3, 1))
+            else:
+                aRot_input = np.array([[0], [0], [0]]).reshape((3, 1))
+
+            m_computer.predict(deltaT, a_input, a_var, aRot_input, aRot_var)
+            stateList.append(m_computer.x)
+            newState = self.progressCheckState(newState, deltaT, a_input, aRot_input)
+            checkStateList.append(newState)
+
+        # plot
+        time = [deltaT*i for i in range(n+1)]
+
+        fig, ax = plt.subplots(6, 3)
+        for dim in range(18):
+            x = self.extractDim(stateList, dim)
+            xCheck = self.extractDim(checkStateList, dim)
+
+            ax[int(dim/3), dim%3].plot(time, x)
+            ax[int(dim/3), dim%3].plot(time, xCheck)
+            ax[int(dim/3), dim%3].legend(['prediction', 'checkState'])
+            ax[int(dim/3), dim%3].grid()
+        
+        fig1 = plt.figure()
+        x = self.extractDim(stateList, 0)
+        xCheck = self.extractDim(checkStateList, 0)
+        y = self.extractDim(stateList, 1)
+        yCheck = self.extractDim(checkStateList, 1)
+        z = self.extractDim(stateList, 2)
+        zCheck = self.extractDim(checkStateList, 2)
+        ax = plt.axes(projection= '3d')
+        ax.plot3D(x, y, z)
+        ax.plot3D(xCheck, yCheck, zCheck)
+        ax.legend(['prediction', 'checkState'])
+        plt.show()
+        plt.ginput(20)
+        print("Test end")
+
+    def extractDim(self, l_list, dim):
+        list = []
+        for elem in l_list:
+            list.append(elem[dim, 0].item())
+        return list
+
+    def progressCheckState(self, state, time, a_input, aRot_input):
+        pos = kinematic.acceleration2positionWBodyAngle(a_input, aRot_input, time, time, state[3:6], state[:3], state[9:12], state[12:15])
+        vel = kinematic.acceleration2velocityWBodyAngle(a_input, aRot_input, time, time, state[3:6], state[9:12], state[12:15])
+        acc = kinematic.bodyFrame2spaceFrame(state[9:12], time, aRot_input, state[12:15]).dot(a_input)
+        rotPos = kinematic.rotAcceleration2rotPos(aRot_input, time, state[12:15], state[9:12])
+        rotVel = kinematic.rotAcceleration2rotVelocity(aRot_input, time, state[12:15])
+        rotAcc = aRot_input
+
+        return np.bmat([[pos], [vel], [acc], [rotPos], [rotVel], [rotAcc]]).reshape((18, 1))
 
     def test_canUpdate(self):
+        return
         x=np.array([[200],[500],[0]])
         v=np.array([[0],[0],[0]])
         a=np.array([[1],[1],[0]])
@@ -174,6 +121,7 @@ class TestBoardcomputer(unittest.TestCase):
         print(det_after)
 
     def test_canBoth(self):
+        return
         a_var = 1.2
         steps = 1000
         realX = 0
