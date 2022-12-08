@@ -57,7 +57,7 @@ class gamefield(QObject):
         velocity = [0, 0, 0]
         nPredict = 10
         deltaT = 0.1
-        boosterDev = [4_500_000, 4_500_000, 0]
+        boosterDev = [4_500_000, 4_500_000, 1]
         self.__spaceship = spaceship(position=position, mass=2900*1000, boosterforce=[[34_500_000, 34_500_000],[34_500_000, 34_500_000], [0, 0]], velocity=velocity, boosterforceDev= boosterDev, nPredict=nPredict, deltaT=deltaT)
         self.__updateTime = 1
         self.__measureDeviation = [10, 10, 0]
@@ -272,7 +272,7 @@ class gamefield(QObject):
         self.__spaceship.setBoosterforce([[boosterforceNegX, boosterforcePosX], [boosterforceNegY, boosterforcePosY], [0, 0]])
         self.__spaceship.setMass(mass)
         #print(f"Gamefield on_input: measureDeviation pre: {self.__measureDeviation}")
-        self.__measureDeviation = [measureDeviationX, measureDeviationY, 0]
+        self.__measureDeviation = [measureDeviationX, measureDeviationY, 1]
         #print(f"Gamefield on_input: measureDeviation after: {self.__measureDeviation}")
 
 if __name__ == '__main__':
