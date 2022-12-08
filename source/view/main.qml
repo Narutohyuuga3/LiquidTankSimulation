@@ -12,7 +12,7 @@ ApplicationWindow {
 
     signal startKeyPressed(string key)
     signal stopKeyPressed(string key)
-    signal sendInput(int numberPredictors, double updateTime, double boosterforceDev, double measXDev, double measYDev, int mass, double boosterforceNegX, double boosterforcePosX, double boosterforceNegY, double boosterforcePosY)
+    signal sendInput(int numberPredictors, double updateTime, double boosterforceDevX, double boosterforceDevY, double measXDev, double measYDev, int mass, double boosterforceNegX, double boosterforcePosX, double boosterforceNegY, double boosterforcePosY)
     
     function onUpdateSpaceshipPos(pos, vel, meas) {
         // position
@@ -64,6 +64,7 @@ ApplicationWindow {
         id_input.itemAt(3).children[0].children[0].children[1].text = Math.round(1000 * uiList[3]) / 1000
         id_input.itemAt(4).children[0].children[0].children[1].text = Math.round(1000 * uiList[4]) / 1000
         id_input.itemAt(5).children[0].children[0].children[1].text = Math.round(1000 * uiList[5]) / 1000
+        id_input.itemAt(6).children[0].children[0].children[1].text = Math.round(1000 * uiList[6]) / 1000
         id_inBoosterforce.itemAt(0).children[0].children[0].children[1].text = Math.round(1000 * uiList[6]) / 1000
         id_inBoosterforce.itemAt(0).children[0].children[0].children[3].text = Math.round(1000 * uiList[7]) / 1000
         id_inBoosterforce.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[8]) / 1000
@@ -142,7 +143,7 @@ ApplicationWindow {
             
             Repeater {
                 id: id_input
-                model: 6
+                model: 7
                 Row {
                     height: 25
                     width: parent.width
@@ -171,14 +172,16 @@ ApplicationWindow {
                     itemAt(0).children[0].children[0].children[1].validator.decimals = 0
                     itemAt(1).children[0].children[0].children[0].text = "Updatetime [s]"
                     itemAt(1).children[0].children[0].children[1].text = "1.5"
-                    itemAt(2).children[0].children[0].children[0].text = "Standard deviation boosterforce"
-                    itemAt(2).children[0].children[0].children[1].text = "150" 
-                    itemAt(3).children[0].children[0].children[0].text = "Standard deviation measurement x"
-                    itemAt(3).children[0].children[0].children[1].text = "2" 
-                    itemAt(4).children[0].children[0].children[0].text = "Standard deviation measurement y"
-                    itemAt(4).children[0].children[0].children[1].text = "3"
-                    itemAt(5).children[0].children[0].children[0].text = "Mass"
-                    itemAt(5).children[0].children[0].children[1].text = "4"
+                    itemAt(2).children[0].children[0].children[0].text = "Standard deviation boosterforce x"
+                    itemAt(2).children[0].children[0].children[1].text = "150"
+                    itemAt(3).children[0].children[0].children[0].text = "Standard deviation boosterforce y"
+                    itemAt(3).children[0].children[0].children[1].text = "150"
+                    itemAt(4).children[0].children[0].children[0].text = "Standard deviation measurement x"
+                    itemAt(4).children[0].children[0].children[1].text = "2" 
+                    itemAt(5).children[0].children[0].children[0].text = "Standard deviation measurement y"
+                    itemAt(5).children[0].children[0].children[1].text = "3"
+                    itemAt(6).children[0].children[0].children[0].text = "Mass"
+                    itemAt(6).children[0].children[0].children[1].text = "4"
                 }
             }
             Row{
@@ -289,10 +292,11 @@ ApplicationWindow {
                             id_input.itemAt(0).children[0].children[0].children[1].text = nPredict
                         }
                         var updateTime = id_input.itemAt(1).children[0].children[0].children[1].text
-                        var accelVar = id_input.itemAt(2).children[0].children[0].children[1].text
-                        var measXVar = id_input.itemAt(3).children[0].children[0].children[1].text
-                        var measYVar = id_input.itemAt(4).children[0].children[0].children[1].text
-                        var mass = id_input.itemAt(5).children[0].children[0].children[1].text
+                        var accelVarX = id_input.itemAt(2).children[0].children[0].children[1].text
+                        var accelVarY = id_input.itemAt(3).children[0].children[0].children[1].text
+                        var measXVar = id_input.itemAt(4).children[0].children[0].children[1].text
+                        var measYVar = id_input.itemAt(5).children[0].children[0].children[1].text
+                        var mass = id_input.itemAt(6).children[0].children[0].children[1].text
 
                         var boosterforce_negx = id_inBoosterforce.itemAt(0).children[0].children[0].children[1].text
                         var boosterforce_posx = id_inBoosterforce.itemAt(0).children[0].children[0].children[3].text
@@ -305,7 +309,7 @@ ApplicationWindow {
                         //boosterforceArray.push(boosterforce_posy)
                         //console.log("Main.qml->UpdateButton: nPredict, updateTime, accelVar, measXVar, measYVar: ", nPredict, updateTime, accelVar, measXVar, measYVar)
                         //console.log("Main.qml->UpdateButton: boosterforce: ", boosterforceArray)
-                        sendInput(nPredict, updateTime, accelVar, measXVar, measYVar, mass, boosterforce_negx, boosterforce_posx, boosterforce_negy, boosterforce_posy)
+                        sendInput(nPredict, updateTime, accelVarX, accelVarY, measXVar, measYVar, mass, boosterforce_negx, boosterforce_posx, boosterforce_negy, boosterforce_posy)
                     }
                 }
             }

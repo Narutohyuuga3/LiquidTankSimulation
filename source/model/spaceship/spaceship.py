@@ -12,16 +12,20 @@ class spaceship:
                     [(F_x), (F_-x)]
     boosterforce =  [(F_y), (F_-y)] [N], dims = [(dim_x) (dim_y) (dim_z)] ONLY + OR -, NO VALUES!
                     [(F_z), (t_-z)]
+                    
+                       [(F_x), (F_-x)]
+    boosterforceDev =  [(F_y), (F_-y)] [N]
+                       [(F_z), (t_-z)]
 
     boosterforce is absolute.
 
     mass = [m] [kg]
     """
 
-    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], boosterforceDev: float = 10.3 ,nPredict: int = 10, deltaT:float = 0.1):
+    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], boosterforceDev: list = [10.3, 10.3, 10.3] ,nPredict: int = 10, deltaT:float = 0.1):
         self._boosterforce = np.array(boosterforce) # [N]
         self.__mass = mass # [kg]
-        self.__accelDev = boosterforceDev/mass
+        self.__accelDev = np.array([[boosterforceDev[0]], [boosterforceDev[1]], [boosterforceDev[2]]])/mass
         self.__position = np.array([[position[0]], [position[1]], [position[2]]])
         self.__velocity = np.array([[velocity[0]], [velocity[1]], [velocity[2]]])
 
@@ -71,10 +75,12 @@ class spaceship:
         
     def setBoosterforceDeviation(self, var):
         #print(f"Spaceship->setAccelDevaition: accelVar pre: {self.__computer.accelVar} with variable var as: {np.sqrt(np.abs(self.__computer.accelVar))}")
-        self.__accelDev = var/self.__mass
-        #print(f"Spaceship->setAccelVariance: accelVar after: {self.__computer.accelVar} with variable var as: {var}")
+        self.__accelDev = np.array(var)/self.__mass
+        print(f"Spaceship->setBoosterforceDev: accelDev after: {self.__accelDev} with variable var as: {var} and mass {self.__mass}")
     def getBoosterforceDeviation(self):
         return self.__accelDev*self.__mass
+    def getBoosterforceDeviationList(self):
+        return (self.__accelDev*self.__mass).reshape(3).tolist()
 
     def setDeltaT(self, var):
         self.__computer.deltaT = var
@@ -107,7 +113,7 @@ class spaceship:
         a = self.getAcceleration(dim)
         # add deviation on it
         for idx, elem in enumerate(a):
-            a[idx] = random.gauss(elem, self.__accelDev)
+            a[idx] = random.gauss(elem, self.__accelDev[idx, 0])
             #a[idx] = np.random.normal(elem, self.__boosterforceDev)
             pass
         
@@ -147,9 +153,8 @@ class spaceship:
         #print(dims)
         accel = self.getAcceleration(dims)
         #print(f"Spaceship->sendUpdate: accel: {accel}")
-        accelVar = (self.__accelDev)**2
         #print(f"Spaceship->sendUpdate: accelVar: {accelVar}")
-        self.__computer.compute(accelVar= accelVar, accel = accel, all = True)
+        self.__computer.compute(accelDev= self.__accelDev, accel = accel, all = True)
 
 
 class boardcomputer:
@@ -267,7 +272,7 @@ class boardcomputer:
     ################################
     ### Calculation methods
 
-    def predict(self, deltaT: float, a_input: np.ndarray, aVariance) -> None:
+    def predict(self, deltaT: float, a_input: np.ndarray, aDeviation: np.ndarray) -> None:
         # inspired by CppMonk
         # x = F * x + G * u
         # P = F * P * F_t + G * G_t * a
@@ -287,9 +292,13 @@ class boardcomputer:
                      [np.eye(3)*deltaT],
                      [np.eye(3)]])
                      
+        aVarMat = np.array([[aDeviation[0, 0]**2, 0, 0],
+                            [0, aDeviation[1, 0]**2, 0],
+                            [0, 0, aDeviation[2, 0]**2]])
+                    
         new_x = F.dot(self.__x) + G.dot(a_input)
 
-        new_P = F.dot(self.__P).dot(F.T) + G.dot(G.T) * aVariance
+        new_P = F.dot(self.__P).dot(F.T) + G.dot(aVarMat).dot(G.T)
 
         self.__x = new_x
         self.__P = new_P
@@ -337,7 +346,7 @@ class boardcomputer:
         # also credits to https://www.kalmanfilter.net/default.aspx for helping to develop the model
         # and providing the sources to learn the concepts of the kalman filters
 
-    def compute(self, accelVar: float, accel: np.ndarray = None, all: bool = False):
+    def compute(self, accelDev: np.ndarray = None, accel: np.ndarray = None, all: bool = False):
         # updates the time for prediction and initialize the predictionAndFill
         # decide if just a new point gets calculated or all prediction gets updated
         if self.__newStorageAvaible:
@@ -349,19 +358,19 @@ class boardcomputer:
 
         if all == False: # calculate just next one position
             #print("Boardcomputer->compute: deltaT: %f0.1" % (self.__deltaT))
-            self.predictAndFill(self.__deltaT, accel, accelVar)
+            self.predictAndFill(self.__deltaT, accel, accelDev)
 
         else: # update all predictions and its cetrainty
             for k in range(self.__nPredict):
                 #print("Boardcomputer->compute: deltaT: %f0.1 in %d iter" % (self.__deltaT, k))
-                self.predictAndFill(self.__deltaT, accel, accelVar)
+                self.predictAndFill(self.__deltaT, accel, accelDev)
         #print("Boardcomputer->compute: return")
 
-    def predictAndFill(self, deltaT: float, a_input: np.ndarray, a_variance: float):
+    def predictAndFill(self, deltaT: float, a_input: np.ndarray, a_deviation: np.ndarray):
         # calculate the prediction and store it in the vectors
         predictStorage = self.__predict[:]
         sigmaStorage = self.__sigma[:]
-        self.predict(deltaT, a_input, a_variance)
+        self.predict(deltaT, a_input, a_deviation)
         #print("Boardcomputer->predictAndFill: predict vector:")
         #print(self.__predict)
         #print("Boardcomputer->predictAndFill: sigma vector:")
