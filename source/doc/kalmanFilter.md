@@ -162,7 +162,12 @@ $$P_{k|k+1}=(I - K_k \cdot H) \cdot P_{k|k} \cdot (I - K_k \cdot H)^T + K_k\cdot
 
    ## 3.2. Observation and Update
 
-   $$m = \begin{bmatrix} x\\ y\\ z\end{bmatrix} $$
+   $$m = \begin{bmatrix}
+    x_m\\
+    y_m\\
+    z_m
+    \end{bmatrix} $$
+   
    $$R = \begin{bmatrix}
     \sigma_{x}^2 & 0 & 0\\
     0 & \sigma_{y}^2 & 0\\
