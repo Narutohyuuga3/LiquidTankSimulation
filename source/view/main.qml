@@ -65,10 +65,10 @@ ApplicationWindow {
         id_input.itemAt(4).children[0].children[0].children[1].text = Math.round(1000 * uiList[4]) / 1000
         id_input.itemAt(5).children[0].children[0].children[1].text = Math.round(1000 * uiList[5]) / 1000
         id_input.itemAt(6).children[0].children[0].children[1].text = Math.round(1000 * uiList[6]) / 1000
-        id_inBoosterforce.itemAt(0).children[0].children[0].children[1].text = Math.round(1000 * uiList[6]) / 1000
-        id_inBoosterforce.itemAt(0).children[0].children[0].children[3].text = Math.round(1000 * uiList[7]) / 1000
-        id_inBoosterforce.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[8]) / 1000
-        id_inBoosterforce.itemAt(1).children[0].children[0].children[3].text = Math.round(1000 * uiList[9]) / 1000
+        id_inBoosterforce.itemAt(0).children[0].children[0].children[1].text = Math.round(1000 * uiList[7]) / 1000
+        id_inBoosterforce.itemAt(0).children[0].children[0].children[3].text = Math.round(1000 * uiList[8]) / 1000
+        id_inBoosterforce.itemAt(1).children[0].children[0].children[1].text = Math.round(1000 * uiList[9]) / 1000
+        id_inBoosterforce.itemAt(1).children[0].children[0].children[3].text = Math.round(1000 * uiList[10]) / 1000
         //console.log("Main.qml->onGetInput: Update: nPredict, updateTime, accelDev, measXDev, measYDev: ", nPredict, updateTime, accelVar, measXVar, measYVar)
     }
 

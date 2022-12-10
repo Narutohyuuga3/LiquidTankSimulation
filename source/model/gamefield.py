@@ -146,15 +146,9 @@ class gamefield(QObject):
 
             deltaT = time.time() - tic
 
-            if True in self.__keyPressed:
-                for idx, elem in enumerate(self.__keyPressed):
-                    if elem == True:
-                        timeVector[idx, 0] = deltaT
-                    else:
-                        timeVector[idx, 0] = 0.0
-                self.__spaceship.calcVelocity(timeVector, self.__dims)
 
-            self.__spaceship.calculatePosition(deltaT)
+            dims = self.matchDimsToInput()
+            self.__spaceship.calculatePosition(deltaT, dims)
             tic = time.time()
 
             # check and prediction of boardcomputer

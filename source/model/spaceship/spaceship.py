@@ -13,16 +13,16 @@ class spaceship:
     boosterforce =  [(F_y), (F_-y)] [N], dims = [(dim_x) (dim_y) (dim_z)] ONLY + OR -, NO VALUES!
                     [(F_z), (t_-z)]
                     
-                       [(F_x), (F_-x)]
-    boosterforceDev =  [(F_y), (F_-y)] [N]
-                       [(F_z), (t_-z)]
+                       [(sigma_Fx)]
+    boosterforceDev =  [(sigma_Fy)] [N]
+                       [(sigma_Fz)]
 
     boosterforce is absolute.
 
     mass = [m] [kg]
     """
 
-    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], boosterforceDev: list = [10.3, 10.3, 10.3] ,nPredict: int = 10, deltaT:float = 0.1):
+    def __init__(self, position: list = [0, 0, 0], mass: int = 1000, boosterforce: list = [[100, 100], [100, 100], [100, 100]], velocity: list = [0, 0, 0], boosterforceDev: list = [10.3, 10.3, 10.3], nPredict: int = 10, deltaT: float = 0.1):
         self._boosterforce = np.array(boosterforce) # [N]
         self.__mass = mass # [kg]
         self.__accelDev = np.array([[boosterforceDev[0]], [boosterforceDev[1]], [boosterforceDev[2]]])/mass
@@ -33,10 +33,18 @@ class spaceship:
 
     # getter/setter
     def setPosition(self, position):
-        self.__position = position
+        self.__position = np.array(position)
+    def getPositionList(self):
+        return self.__position.reshape(3).tolist()
+    def getPosition(self):
+        return self.__position
 
     def setVelocity(self, velocity):
-        self.__velocity = velocity
+        self.__velocity = np.array(velocity)
+    def getVelocityList(self):
+        return self.__velocity.reshape(3).tolist()
+    def getVelocity(self):
+        return self.__velocity
 
     def setMass(self, mass):
         #print(f"Spaceship->setMass: {mass}")
@@ -52,16 +60,15 @@ class spaceship:
     def getBoosterforce(self):
         return self._boosterforce.tolist()
     
-    def getPositionList(self):
-        return self.__position.reshape(3).tolist()
-    def getPosition(self):
-        return self.__position
-    
-    def getVelocityList(self):
-        return self.__velocity.reshape(3).tolist()
-    def getVelocity(self):
-        return self.__velocity
-
+    def setBoosterforceDeviation(self, var):
+        #print(f"Spaceship->setAccelDevaition: accelVar pre: {self.__computer.accelVar} with variable var as: {np.sqrt(np.abs(self.__computer.accelVar))}")
+        self.__accelDev = np.array(var)/self.__mass
+        print(f"Spaceship->setBoosterforceDev: accelDev after: {self.__accelDev} with variable var as: {var} and mass {self.__mass}")
+    def getBoosterforceDeviation(self):
+        return self.__accelDev*self.__mass
+    def getBoosterforceDeviationList(self):
+        return (self.__accelDev*self.__mass).reshape(3).tolist()
+        
     def getAcceleration(self, dims):
         a = np.zeros((3, 1))
         for idx in range(len(dims)):
@@ -72,15 +79,6 @@ class spaceship:
             else:
                 a[idx, 0] = 0
         return a/self.__mass
-        
-    def setBoosterforceDeviation(self, var):
-        #print(f"Spaceship->setAccelDevaition: accelVar pre: {self.__computer.accelVar} with variable var as: {np.sqrt(np.abs(self.__computer.accelVar))}")
-        self.__accelDev = np.array(var)/self.__mass
-        print(f"Spaceship->setBoosterforceDev: accelDev after: {self.__accelDev} with variable var as: {var} and mass {self.__mass}")
-    def getBoosterforceDeviation(self):
-        return self.__accelDev*self.__mass
-    def getBoosterforceDeviationList(self):
-        return (self.__accelDev*self.__mass).reshape(3).tolist()
 
     def setDeltaT(self, var):
         self.__computer.deltaT = var
@@ -109,21 +107,14 @@ class spaceship:
         return self.__computer.sigma
 
     # calculating methods
-    def calcVelocity(self, time, dim):
+    def calculatePosition(self, time, dim):
         a = self.getAcceleration(dim)
-        # add deviation on it
         for idx, elem in enumerate(a):
             a[idx] = random.gauss(elem, self.__accelDev[idx, 0])
             #a[idx] = np.random.normal(elem, self.__boosterforceDev)
             pass
-        
-        #print('Spaceship->calcVelocity: ax=%f.1, ay=%f.1, az=%f.1' %(a[0,0], a[1,0], a[2,0]))
+        self.__position = kinematic.acceleration2position(a, time, self.__velocity, self.__position)
         self.__velocity = kinematic.acceleration2velocity(a, time, self.__velocity)
-        #print('Spaceship->calcVelocity: x=%f.1, y=%f.1, z=%f.1' %(self.__velocity[0,0], self.__velocity[1,0], self.__velocity[2,0]))
-        return self.__velocity
-
-    def calculatePosition(self, time):
-        self.__position = kinematic.velocity2position(self.__velocity, time, self.__position)
         #print('Spaceship calculatePosition: x=%f.1, y=%f.1, z=%f.1' %(self.__position[0,0],self.__position[1,0],self.__position[2,0]))
         return self.__position
 
@@ -142,13 +133,10 @@ class spaceship:
         #z = self.__position[2].item()
         #print("Spaceship->sendUpdate: measureDevaiation pre: ")
         #print(measureDevaition)
-        l_measureVariance = measureDeviation.copy()
-        for index, elem in enumerate(l_measureVariance):
-            l_measureVariance[index] = elem**2
         #print("Spaceshipe->sendUpdate: measureDevbiation to measureVariance:")
         #print(l_measureVariance)
 
-        self.__computer.update([x, y, z], l_measureVariance)
+        self.__computer.update([x, y, z], measureDeviation)
         #print("Spaceship->sendUpdate: dims")
         #print(dims)
         accel = self.getAcceleration(dims)
@@ -167,9 +155,6 @@ class boardcomputer:
 #   give measure values and certainity values
 
     def __init__(self, spaceship: spaceship, predictPosition: int = 10, deltaT: float = 0.1):
-        """
-        position, velocity, acceleration and accel_variance must be a 3-row vector, containing infos about x, y and z!
-        """
         # Mittelwert des Systemzustandes
         position = spaceship.getPosition()
         velocity = spaceship.getVelocity()
@@ -303,16 +288,16 @@ class boardcomputer:
         self.__x = new_x
         self.__P = new_P
 
-    def update(self, measPos: list, measVar: list):
+    def update(self, measPos: list, measDev: list):
         # inspired by CppMonk
         # y = z - H * x
         # S = H * P * H_t
         # K = P * H_t * S_-1
         # x = x + K * y
         # P = (I - K * H) * P
-        R = np.array([[measVar[0], 0, 0],
-                      [0, measVar[1], 0],
-                      [0, 0, measVar[2]]])
+        R = np.array([[measDev[0]**2, 0, 0],
+                      [0, measDev[1]**2, 0],
+                      [0, 0, measDev[2]**2]])
 
         self.__measurepoint = np.array([[measPos[0]],
                       [measPos[1]],
@@ -332,7 +317,7 @@ class boardcomputer:
         #print(f"Boardcomputer->update: shape of P: {np.shape(self.__P)}, shape of H: {np.shape(H)}, shape of S: {np.shape(S)}")
         K = self.__P.dot(H.T).dot(np.linalg.inv(S))
         new_x = self.__x + K.dot(y)
-        new_P = (np.eye(9)-K.dot(H)).dot(self.__P)
+        new_P = (np.eye(9)-K.dot(H)).dot(self.__P).dot((np.eye(9)-K.dot(H)).T)+K.dot(R).dot(K.T)
 
         self.__x = new_x
         self.__P = new_P

@@ -2,18 +2,15 @@
 
 ## Table of contents
 
-  - [1. What is it about?](#1-what-is-it-about)
-    - [To do:](#to-do)
-  - [2. Further ideas](#2-further-ideas)
-  - [3. License](#3-license)
 - [pySpace](#pyspace)
   - [Table of contents](#table-of-contents)
 - [1. What is it about?](#1-what-is-it-about)
-  - [To do:](#to-do)
-- [2. Required packages](#2-required-packages)
-- [3. Documentation](#3-documentation)
-- [4. Further ideas](#4-further-ideas)
-- [5. License](#5-license)
+- [2. How to Control](#2-how-to-control)
+  - [Progress:](#progress)
+- [3. Required packages](#3-required-packages)
+- [4. Documentation](#4-documentation)
+- [5. Further ideas](#5-further-ideas)
+- [6. License](#6-license)
 - [About the Author](#about-the-author)
     - [Knowledge/Recently used:](#knowledgerecently-used)
       - [Basic Knowledge/Got in touch with:](#basic-knowledgegot-in-touch-with)
@@ -23,7 +20,11 @@
 
 This small 2D game emulates the Spaceship behavior in a force free space. The player can control the space ship by applying forces via booster (w/s/a/d). By using the Kalman filter, the spaceship estimates the applied force and therefore the acceleration, current velocity, position in space and the mass of the spaceship. It should predict the trajectory of the spaceship in the space. The player can collect power-ups, which increases the mass as load of the spaceship or the power of the booster. The spaceship can just measure the position directly through the radar connection to the earth. This and the applied booster have some noise.
 
-## To do:
+# 2. How to Control
+
+The spaceship is controlled by standard Keys W/S/A/D.
+Changing parameters can be done on the input/output panel to the right side. Hit "update" to be able to control the spaceship again.
+## Progress:
 
 Goals for V1:
 - [ ] UI
@@ -57,20 +58,22 @@ Goals for V1:
     - [x] Ship
     - [ ] Kalman filter/Boardcomputer
       - [x] Position (x/y)
-      - [ ] Orientation angle (\theta_{x,y}, \theta_{x,z}, \theta_{y,z})
+      - [ ] Orientation angle (\theta_{x,y}, \theta_{x,z}, \theta_{y,z}) 
+        
+        *Requires expanding Kalman Filter to Unscented Kalman Filter. Postponed to V1.5. Also want to compare with Expanded Kalman Filter and see the influence of linearization.*
   - [ ] Power Ups
     - [ ] Loads
     - [ ] Booster
 
-# 2. Required packages
+# 3. Required packages
 
 Besides python 3 is [pyQt6](https://pypi.org/project/PyQt6/) required. Whole UserInterface and Signal/Slot communication uses pyQt6. As IDE is VS Code used. The required settings for VS Code are attached.
 
-# 3. Documentation
+# 4. Documentation
 
-Documentation can be found here.
+Documentation can be found [here](source/doc/hub.md).
 
-# 4. Further ideas
+# 5. Further ideas
 Goals for V2:
 Offer 3d Space"simulator" as own game type
 - [ ] Menu
@@ -81,7 +84,7 @@ Offer 3d Space"simulator" as own game type
   - [ ] Playground
     - [ ] Add Planets
     - [ ] Astroids
-  - [ ] Cockpit view with boardcomputer displaying estimated values such as
+  - [ ] Cockpit view with boardcomputer displaying estimated values such as. Requires expansion of State Space Model if Mass/Load and Boosterforce should be approximated.
     - [ ] Mass/Load
     - [ ] Velocity
     - [ ] Booster force
@@ -106,7 +109,7 @@ Add as further mode "Orrery" where you can watch movement of Plantes just like i
 - AI calculating route and auto pilot
 - add interstellar travelling (with fast forward)
 
-# 5. License
+# 6. License
 
 This project uses the GPLv3 [License](LICENSE.md)
 # About the Author
