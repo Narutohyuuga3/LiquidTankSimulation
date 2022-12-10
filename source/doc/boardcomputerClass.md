@@ -32,7 +32,8 @@ The boardcomputer class holds the [Kalman Filter](kalmanFilter.md), the state sp
 
 # 1. Parameters
 
-State space vector 
+State space vector
+
 $$x=\begin{bmatrix}
 x\\
 y\\
@@ -48,6 +49,7 @@ a_z\\
 Time step $\Delta t$
 
 Current measure point 
+
 $$m=\begin{bmatrix}
 m_x\\
 m_y\\
