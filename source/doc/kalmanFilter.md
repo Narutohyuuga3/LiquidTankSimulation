@@ -12,6 +12,7 @@ The Kalman Filter is a numerical tool to estimate parameters. It uses statistica
 - [3. Used State Space Model and Observation Model](#3-used-state-space-model-and-observation-model)
   - [3.1. State Space](#31-state-space)
   - [3.2. Observation and Update](#32-observation-and-update)
+- [4. Credits](#4-credits)
  
 
 # 1. Prediction
@@ -175,3 +176,10 @@ $$P_{k|k+1}=(I - K_k \cdot H) \cdot P_{k|k} \cdot (I - K_k \cdot H)^T + K_k\cdot
    0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
    0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
    \end{bmatrix}$$
+
+   # 4. Credits
+
+  Credits goes to [CppMonk](https://www.youtube.com/@cppmonk3731) for explaing and showing how to code and test the [Kalman Filter](kalmanFilter.md)
+  He was also the one, who showed it how to [visualize](https://www.youtube.com/watch?v=m5Bw1m8jJuY) it!
+  Also credits to [KalmanFilter.net](https://www.kalmanfilter.net/default.aspx) for helping to develop the model
+  and providing the sources to learn the concepts of the [Kalman Filters](kalmanFilter.md)
