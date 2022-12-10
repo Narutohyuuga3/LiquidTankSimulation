@@ -57,13 +57,15 @@ v_z
 
 The parameters for the boosterforce are split into the positive and negative direction of of a dimension. Their values are absolute values!
 
-Boosterforce $$bf=\begin{bmatrix}
+Boosterforce
+$$bf=\begin{bmatrix}
 -F_x & +F_x\\
 -F_y & +F_y\\
 -F_z & +F_z
 \end{bmatrix}$$
 
-Boosterforce deviation $$bfd=\begin{bmatrix}
+Boosterforce deviation
+$$bfd=\begin{bmatrix}
 \sigma_{Fx}\\
 \sigma_{Fy}\\
 \sigma_{Fz}
@@ -85,7 +87,7 @@ For input purposes:
 
 $dims$ is a python list and describes in which dimension the spaceship was steered. Is posses the following possible values +, - and else.
 
-$dims = [dim_x & dim_y & dim_z]$
+$dims = [dim_x, dim_y, dim_z]$
 
 [$boardcomputer$](boardcomputerClass.md) is a own class for managing the predictions, its deviations and also the [Kalman Filter](kalmanFilter.md) update and prediction process.
 

@@ -19,6 +19,7 @@ The Kalman Filter is a numerical tool to estimate parameters. It uses statistica
 The following equations are used for the prediction step.
  
  $$ x_{k+1|k} = F \cdot x_{k|k} + G \cdot u_k $$
+ 
  $$ P_{k+1|k} = F \cdot P_{k|k} \cdot F^T + G\cdot Q_k \cdot G^T $$
 
  $x$ is the state vector, $F$ is the state model, $G$ the control matrice and $u$ the input vector.
@@ -36,12 +37,19 @@ $Q$ is defined as follows:
   $P$ has the same definition with the size of the state space
 
 Shapes for the State Space
+
   $$ x \in \mathbb{R^{m\times 1}}$$
+
   $$ F \in \mathbb{R^{m\times m}}$$
+
   $$ u \in \mathbb{R^{n\times 1}}$$
+
   $$ G \in \mathbb{R^{m\times n}}$$
+
   Shapes for the Covariance Equation:
+
   $$ P \in \mathbb{R^{m\times m}}$$
+
   $$ Q \in \mathbb{R^{n\times n}}$$
   
   # 2. Update
@@ -51,9 +59,13 @@ Shapes for the State Space
   The update equations are as follows:
 
   $$y_k=m_k - H\cdot x_{k|k}$$
+
   $$S_k=H\cdot P_{k|k} \cdot H^T + R_k$$
+
   $$K_k=P_{k|k} \cdot H^T \cdot S_k^{-1}$$
+
   $$x_{k|k+1}=x_{k|k} + K_k \cdot y_k$$
+
   $$P_{k|k+1}=(I - K_k \cdot H) \cdot P_{k|k}$$
 
   **Sidenote: the update equation for P is the simplified version and is unstable in certain cases. The full equation is as follows:*
@@ -69,11 +81,17 @@ $$P_{k|k+1}=(I - K_k \cdot H) \cdot P_{k|k} \cdot (I - K_k \cdot H)^T + K_k\cdot
    The shape are as follows:
 
    $$m\in \mathbb{R^{p\times 1}}$$
+
    $$R\in \mathbb{R^{p\times p}}$$
+
    $$y\in \mathbb{R^{p\times 1}}$$
+
    $$H\in \mathbb{R^{p\times m}}$$
+
    $$S\in \mathbb{R^{p\times p}}$$
+
    $$K\in \mathbb{R^{m\times p}}$$
+
    $$I\in \mathbb{R^{m\times m}}$$
 
    # 3. Used State Space Model and Observation Model
