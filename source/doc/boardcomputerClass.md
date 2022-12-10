@@ -32,7 +32,8 @@ The boardcomputer class holds the [Kalman Filter](kalmanFilter.md), the state sp
 
 # 1. Parameters
 
-State space vector $x=\begin{bmatrix}
+State space vector 
+$$x=\begin{bmatrix}
 x\\
 y\\
 z\\
@@ -42,17 +43,18 @@ v_z\\
 a_x\\
 a_y\\
 a_z\\
-\end{bmatrix}$
+\end{bmatrix}$$
 
 Time step $\Delta t$
 
-Current measure point $m=\begin{bmatrix}
+Current measure point 
+$$m=\begin{bmatrix}
 m_x\\
 m_y\\
 m_z\\
-\end{bmatrix}$
+\end{bmatrix}$$
 
-Flag of new Storage $newStorageAvaible
+Flag of new Storage $newStorageAvaible$
 
 Covariance matrice of state $P \in \mathbb{R^{9\times 9}}$
 

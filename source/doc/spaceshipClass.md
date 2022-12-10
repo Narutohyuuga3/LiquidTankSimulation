@@ -1,6 +1,6 @@
 # Spaceship class
 
-The spaceship class describes the parameters of the spaceship and handle the position calculation. It posesses the real position x, y and z and the velocity vx, vy and vz. It also has the [boardcomputer](boardcomputerClass.md), which manages the [Kalman Filter](kalmanFiler.md) model. It uses the numpy-library of python and [Kinematic Library](kinematicLibrary.md).
+The spaceship class describes the parameters of the spaceship and handle the position calculation. It posesses the real position x, y and z and the velocity vx, vy and vz. It also has the [boardcomputer](boardcomputerClass.md), which manages the [Kalman Filter](kalmanFilter.md) model. It uses the numpy-library of python and [Kinematic Library](kinematicLibrary.md).
 
 ## Table of contents
 
@@ -41,30 +41,40 @@ The spaceship class describes the parameters of the spaceship and handle the pos
 
 # 1. Variables
 
-Position $x=\begin{bmatrix}x\\y\\z\end{bmatrix}$
+Position
+$$x=\begin{bmatrix}
+x\\
+y\\
+z
+\end{bmatrix}$$
 
-Velocity $v=\begin{bmatrix}v_x\\v_y\\v_z\end{bmatrix}$
+Velocity 
+$$v=\begin{bmatrix}
+v_x\\
+v_y\\
+v_z
+\end{bmatrix}$$
 
 The parameters for the boosterforce are split into the positive and negative direction of of a dimension. Their values are absolute values!
 
-Boosterforce $bf=\begin{bmatrix}
+Boosterforce $$bf=\begin{bmatrix}
 -F_x & +F_x\\
 -F_y & +F_y\\
 -F_z & +F_z
-\end{bmatrix}$
+\end{bmatrix}$$
 
-Boosterforce deviation $bfd=\begin{bmatrix}
+Boosterforce deviation $$bfd=\begin{bmatrix}
 \sigma_{Fx}\\
 \sigma_{Fy}\\
 \sigma_{Fz}
-\end{bmatrix}$
+\end{bmatrix}$$
 
 It will be soon changed to
-$bfd=\begin{bmatrix}
+$$bfd=\begin{bmatrix}
 -\sigma_{Fx} & +\sigma_{Fx} \\
 -\sigma_{Fy} & +\sigma_{Fy} \\
 -\sigma_{Fz} & +\sigma_{Fz} 
-\end{bmatrix}$
+\end{bmatrix}$$
 to make it dimension direction dependend
 
 Mass $m$
@@ -75,9 +85,9 @@ For input purposes:
 
 $dims$ is a python list and describes in which dimension the spaceship was steered. Is posses the following possible values +, - and else.
 
-$dims = \begin{bmatrix}dim_x & dim_y & dim_z \end{bmatrix}$
+$dims = [dim_x & dim_y & dim_z]$
 
-[$boardcomputer$](boardcomputerClass.md) is a own class for managing the predictions, its deviations and also the [Kalman Filter](kalmanFiler.md) update and prediction process.
+[$boardcomputer$](boardcomputerClass.md) is a own class for managing the predictions, its deviations and also the [Kalman Filter](kalmanFilter.md) update and prediction process.
 
 # 2. Methods
 
@@ -130,7 +140,7 @@ Returns the list of predictions or their deviation to each prediction from the [
 ## Calculation methods
 
 ### def calculatePosition(self, time, dim):
-Calculate and update spaceship position and velocity for each dimenstion x, y and z. Inputs: time as float and dim as 1d python list [val, val, val].
+Calculate and update spaceship position and velocity for each dimenstion x, y and z. Inputs: time as float and dim as 1d python list [val, val, val]. It uses the [Kinematic Library](kinematicLibrary.md) for it.
 
 ### def sendCompute(self, dims: list, all: bool = False):
 Send command to [boardcomputer](boardcomputerClass.md) to calculate next prediction or recalculate all predictions.

@@ -89,7 +89,17 @@ $$P_{k|k+1}=(I - K_k \cdot H) \cdot P_{k|k} \cdot (I - K_k \cdot H)^T + K_k\cdot
 
    To describe it in all three dimensions x, y, z and as matrix system leads to the following matrices:
 
-   $$x= \begin{bmatrix}x\\y\\z\\v_x\\v_y\\v_z\\a_x\\a_y\\a_z\end{bmatrix}$$
+   $$x= \begin{bmatrix}
+   x\\
+   y\\
+   z\\
+   v_x\\
+   v_y\\
+   v_z\\
+   a_x\\
+   a_y\\
+   a_z
+   \end{bmatrix}$$
 
    $$F= \begin{bmatrix}
    1 & 0 & 0 & \Delta t & 0 & 0 & 0 & 0 & 0 \\
@@ -105,7 +115,11 @@ $$P_{k|k+1}=(I - K_k \cdot H) \cdot P_{k|k} \cdot (I - K_k \cdot H)^T + K_k\cdot
 
    For the system input follows:
 
-   $$u= \begin{bmatrix}a_x\\a_y\\a_z\end{bmatrix}$$
+   $$u= \begin{bmatrix}
+   a_x\\
+   a_y\\
+   a_z
+   \end{bmatrix}$$
 
    $$G= \begin{bmatrix}
    \frac{1}{2}\cdot\Delta t & 0 & 0\\
