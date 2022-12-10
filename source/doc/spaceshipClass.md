@@ -42,6 +42,7 @@ The spaceship class describes the parameters of the spaceship and handle the pos
 # 1. Variables
 
 Position
+
 $$x=\begin{bmatrix}
 x\\
 y\\
@@ -49,6 +50,7 @@ z
 \end{bmatrix}$$
 
 Velocity 
+
 $$v=\begin{bmatrix}
 v_x\\
 v_y\\
@@ -58,6 +60,7 @@ v_z
 The parameters for the boosterforce are split into the positive and negative direction of of a dimension. Their values are absolute values!
 
 Boosterforce
+
 $$bf=\begin{bmatrix}
 -F_x & +F_x\\
 -F_y & +F_y\\
@@ -65,6 +68,7 @@ $$bf=\begin{bmatrix}
 \end{bmatrix}$$
 
 Boosterforce deviation
+
 $$bfd=\begin{bmatrix}
 \sigma_{Fx}\\
 \sigma_{Fy}\\
@@ -72,11 +76,13 @@ $$bfd=\begin{bmatrix}
 \end{bmatrix}$$
 
 It will be soon changed to
+
 $$bfd=\begin{bmatrix}
 -\sigma_{Fx} & +\sigma_{Fx} \\
 -\sigma_{Fy} & +\sigma_{Fy} \\
 -\sigma_{Fz} & +\sigma_{Fz} 
 \end{bmatrix}$$
+
 to make it dimension direction dependend
 
 Mass $m$
@@ -89,7 +95,7 @@ $dims$ is a python list and describes in which dimension the spaceship was steer
 
 $dims = [dim_x, dim_y, dim_z]$
 
-[$boardcomputer$](boardcomputerClass.md) is a own class for managing the predictions, its deviations and also the [Kalman Filter](kalmanFilter.md) update and prediction process.
+[boardcomputer](boardcomputerClass.md) is a own class for managing the predictions, its deviations and also the [Kalman Filter](kalmanFilter.md) update and prediction process.
 
 # 2. Methods
 
