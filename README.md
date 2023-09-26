@@ -20,6 +20,9 @@
 
 This small 2D game emulates the Spaceship behavior in a force free space. The player can control the space ship by applying forces via booster (w/s/a/d). By using the Kalman filter, the spaceship estimates the applied force and therefore the acceleration, current velocity, position in space and the mass of the spaceship. It should predict the trajectory of the spaceship in the space. The player can collect power-ups, which increases the mass as load of the spaceship or the power of the booster. The spaceship can just measure the position directly through the radar connection to the earth. This and the applied booster have some noise.
 
+<img style="display: block; margin-left: auto; margin-right: auto; width: 30%" src="source/doc/img/pySpace.png" alt="Green dot: real position, Blue dot: measured position, Red dots: Estimation over time, Yellow dots: 99% bubble, timestep is 1s/10=0.1s" />
+<p style="display: block; margin-left: auto; margin-right: auto; width: 30%">Green dot: real position, Blue dot: measured position, Red dots: Estimation over time, Yellow dots: 99% bubble, timestep is 1s/10=0.1s</p>
+
 # 2. How to Control
 
 The spaceship is controlled by standard Keys W/S/A/D.
